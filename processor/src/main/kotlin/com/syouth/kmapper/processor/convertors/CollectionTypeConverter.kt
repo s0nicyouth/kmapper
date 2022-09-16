@@ -29,7 +29,7 @@ internal class CollectionTypeConverter(
         fromParameterSpec: ParameterSpec?,
         from: KSType?,
         to: KSType,
-        targetPath: PathHolder
+        targetPath: PathHolder?
     ): AssignableStatement {
         if (from == null || fromParameterSpec == null) throw IllegalStateException("from type or from object name can't be null here")
         return AssignableStatement(
@@ -46,11 +46,10 @@ internal class CollectionTypeConverter(
         add("%N", fromParameterSpec)
     }
 
-    private fun buildCodeBlockForDataClasses(fromParameterSpec: ParameterSpec, from: KSType, to: KSType, targetPath: PathHolder): CodeBlock = buildCodeBlock {
+    private fun buildCodeBlockForDataClasses(fromParameterSpec: ParameterSpec, from: KSType, to: KSType, targetPath: PathHolder?): CodeBlock = buildCodeBlock {
         val fromCollectionArgumentType = from.extractSupportedCollectionTypeArgumentType()
         val toCollectionArgumentType = to.extractSupportedCollectionTypeArgumentType()
         val resultTypeSpec = to.getCorrespondingConcreteTypeForSupportedCollectionType()
-        targetPath.appendPathElement(PathHolder.PathElement(PathHolder.PATH_ITERABLE_ELEMENT, toCollectionArgumentType))
         beginControlFlow("run {")
         addStatement("val result = %T()", resultTypeSpec)
         run {
@@ -88,6 +87,5 @@ internal class CollectionTypeConverter(
         }
         addStatement("result")
         endControlFlow()
-        targetPath.removeLastPathElement()
     }
 }

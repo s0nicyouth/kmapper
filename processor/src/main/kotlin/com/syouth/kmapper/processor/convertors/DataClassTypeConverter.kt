@@ -30,7 +30,7 @@ internal class DataClassTypeConverter(
         fromParameterSpec: ParameterSpec?,
         from: KSType?,
         to: KSType,
-        targetPath: PathHolder
+        targetPath: PathHolder?
     ): AssignableStatement = AssignableStatement(
         code = when {
             fromParameterSpec == null || from == null -> throw IllegalStateException("From type or object name can't be null here")
@@ -45,25 +45,25 @@ internal class DataClassTypeConverter(
         add("%N", fromObjectName)
     }
 
-    private fun buildCodeBlockForDifferentTypes(fromObjectName: ParameterSpec, from: KSType, to: KSType, targetPath: PathHolder): CodeBlock = buildCodeBlock {
+    private fun buildCodeBlockForDifferentTypes(fromObjectName: ParameterSpec, from: KSType, to: KSType, targetPath: PathHolder?): CodeBlock = buildCodeBlock {
         val mappingPropertiesWithDefaults = (to.declaration as KSClassDeclaration).buildMappingTable(from.declaration as KSClassDeclaration)
         val conversionStatementIndexToMappingProperty = mutableMapOf<Int, MappingProperties>()
         var statementIndex = 0
         val conversionBlocks: List<AssignableStatement> = mappingPropertiesWithDefaults.mapNotNull {
             val additionalPath = it.to.name?.let { name -> PathHolder.PathElement(name.asString(), it.to.type.resolve()) } ?: throw IllegalStateException("to property should have a name")
-            targetPath.appendPathElement(additionalPath)
+            targetPath?.appendPathElement(additionalPath)
             val fromType = it.from?.type?.resolve()
             val converter = convertersManager.findConverterForTypes(fromType, it.to.type.resolve(), targetPath)
             if (converter == null && !it.to.hasDefault) throw IllegalStateException("Can't map ${it.to.type.toTypeName()} with name ${it.to.name?.asString()} and path $targetPath") // No converter and no default value means fail
             // Skip generation for inconvertible value with default
             if (converter == null && it.to.hasDefault) {
-                targetPath.removeLastPathElement()
+                targetPath?.removeLastPathElement()
                 return@mapNotNull null
             }
             if (converter == null) throw IllegalStateException("Should not ever happen")
             val paramSpec = ParameterSpec.builder("it", fromType?.toTypeName() ?: Unit::class.asTypeName()).build()
             val conversionStatement = converter.buildConversionStatement(paramSpec, fromType, it.to.type.resolve(), targetPath)
-            targetPath.removeLastPathElement()
+            targetPath?.removeLastPathElement()
             conversionStatementIndexToMappingProperty[statementIndex++] = it
             conversionStatement
         }

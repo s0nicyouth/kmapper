@@ -4,10 +4,6 @@ import com.google.devtools.ksp.symbol.KSType
 
 internal class PathHolder {
 
-    companion object {
-        const val PATH_ITERABLE_ELEMENT = "{iterable}"
-    }
-
     internal data class PathElement(
         val elementName: String,
         val elementType: KSType

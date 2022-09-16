@@ -30,7 +30,7 @@ internal class UserDefinedMethodConverter(
         fromParameterSpec: ParameterSpec?,
         from: KSType?,
         to: KSType,
-        targetPath: PathHolder
+        targetPath: PathHolder?
     ): AssignableStatement = AssignableStatement(
         code = buildCodeBlock {
             if (fromParameterSpec == null) throw IllegalStateException("From object name can't be null here")

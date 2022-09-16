@@ -15,6 +15,7 @@ internal interface ExampleMapper : ExampleMapperSupport {
     @Mapping(target = "float", source = "secondTestParam")
     @Mapping(target = "innerMappingDomain.nI", source = "testParam")
     @Mapping(target = "integer", source = "testDto.testI")
+    @Mapping(target = "innerList.i", source = "testDto.testI")
     fun map(dto: ExampleDto, testParam: Int?, secondTestParam: Float, ii: Int, testDto: TestDto): ExampleDomain
     fun map(v: Double): Double = v / 2.5
 }

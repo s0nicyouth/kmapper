@@ -20,7 +20,7 @@ internal class NonCollectionTypeConverter() : TypeConvertor {
         fromParameterSpec: ParameterSpec?,
         from: KSType?,
         to: KSType,
-        targetPath: PathHolder
+        targetPath: PathHolder?
     ): AssignableStatement = AssignableStatement(
             code = buildCodeBlock {
                 if (fromParameterSpec == null) throw IllegalStateException("from object name can't be null here")

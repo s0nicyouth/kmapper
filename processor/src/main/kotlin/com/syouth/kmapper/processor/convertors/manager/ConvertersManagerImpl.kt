@@ -58,20 +58,17 @@ internal class ConvertersManagerImpl(
         val elements = path.split('.')
         var currentType = type
         for (element in elements) {
+            if (currentType.isSupportedCollectionType()) {
+                currentType = currentType.extractSupportedCollectionTypeArgumentType()
+            }
             val typeDeclaration = currentType.declaration
             if (typeDeclaration !is KSClassDeclaration) throw IllegalStateException("Return type should be a class")
-            currentType = if (currentType.isSupportedCollectionType()) {
-                val collectionType = currentType.extractSupportedCollectionTypeArgumentType()
-                result.appendPathElement(PathHolder.PathElement(PathHolder.PATH_ITERABLE_ELEMENT, collectionType))
-                collectionType
-            } else {
-                val foundPropertyType = typeDeclaration
-                    .getAllProperties()
-                    .find { it.simpleName.asString() == element }?.type?.resolve()
-                    ?: throw IllegalStateException("Target path should reference valid properties. Can't find $element from $path")
-                result.appendPathElement(PathHolder.PathElement(element, foundPropertyType))
-                foundPropertyType
-            }
+            val foundPropertyType = typeDeclaration
+                .getAllProperties()
+                .find { it.simpleName.asString() == element }?.type?.resolve()
+                ?: throw IllegalStateException("Target path should reference valid properties. Can't find $element from $path")
+            result.appendPathElement(PathHolder.PathElement(element, foundPropertyType))
+            currentType = foundPropertyType
         }
 
         return result

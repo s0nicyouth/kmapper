@@ -25,7 +25,7 @@ internal class UserDefinedPropertyConverter(
         fromParameterSpec: ParameterSpec?,
         from: KSType?,
         to: KSType,
-        targetPath: PathHolder
+        targetPath: PathHolder?
     ): AssignableStatement {
         val sourceFinalType = sourcePath.getLastElementFinalType()
         val converter = convertersManager.findConverterForTypes(sourceFinalType, to, null) ?: throw IllegalStateException("Can't find converter for ${fromParameterSpec?.name}")
