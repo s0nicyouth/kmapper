@@ -25,7 +25,7 @@ internal class NonCollectionTypeConverter : TypeConvertor {
         targetPath: PathHolder?
     ): AssignableStatement = AssignableStatement(
             code = buildCodeBlock {
-                if (fromParameterSpec == null) throw IllegalStateException("from object name can't be null here")
+                check(fromParameterSpec != null) { "from object name can't be null here" }
                 add("%N", fromParameterSpec)
             },
         requiresObjectToConvertFrom = true

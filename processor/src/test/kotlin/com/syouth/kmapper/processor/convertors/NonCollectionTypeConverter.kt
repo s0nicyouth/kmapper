@@ -1,12 +1,14 @@
 package com.syouth.kmapper.processor.convertors
 
 import com.google.devtools.ksp.symbol.*
+import com.squareup.kotlinpoet.ParameterSpec
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.base.data.SUPPORTED_CONVERSION_INTERFACES
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import java.lang.reflect.Type
 
 internal class NonCollectionTypeConverterTest {
 
@@ -66,4 +68,23 @@ internal class NonCollectionTypeConverterTest {
         Assertions.assertTrue(converter.isSupported(sufficientType, sufficientType, PathHolder()))
     }
 
+    @Test
+    fun `GIVEN fromParameterSpec is null THEN exception is thrown`() {
+        Assertions.assertThrows(IllegalStateException::class.java) {
+            converter.buildConversionStatement(
+                null,
+                mock(),
+                mock(),
+                PathHolder()
+            )
+        }
+    }
+
+    @Test
+    fun `GIVEN parameters are correct THEN generated code is correct`() {
+        val parameterSpec = ParameterSpec.builder("it", Int::class).build()
+        val assignableStatement = converter.buildConversionStatement(parameterSpec, mock(), mock(), PathHolder())
+        Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
+        Assertions.assertEquals("it", assignableStatement.code.toString())
+    }
 }

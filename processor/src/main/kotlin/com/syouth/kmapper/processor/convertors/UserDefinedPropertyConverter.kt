@@ -28,7 +28,7 @@ internal class UserDefinedPropertyConverter(
         targetPath: PathHolder?
     ): AssignableStatement {
         val sourceFinalType = sourcePath.getLastElementFinalType()
-        val converter = convertersManager.findConverterForTypes(sourceFinalType, to, null) ?: throw IllegalStateException("Can't find converter for ${fromParameterSpec?.name}")
+        val converter = convertersManager.findConverterForTypes(sourceFinalType, to, null) ?: throw IllegalStateException("Can't find converter for $targetPath")
         val parameterSpec = ParameterSpec.builder("it", sourceFinalType.toTypeName()).build()
         val conversionStatement = converter.buildConversionStatement(parameterSpec, sourceFinalType, to, targetPath)
         return AssignableStatement(
@@ -38,7 +38,7 @@ internal class UserDefinedPropertyConverter(
                     addStatement("%L", conversionStatement.code)
                     endControlFlow()
                 } else {
-                    add("%L", conversionStatement)
+                    add("%L", conversionStatement.code)
                 }
             },
             requiresObjectToConvertFrom = false
