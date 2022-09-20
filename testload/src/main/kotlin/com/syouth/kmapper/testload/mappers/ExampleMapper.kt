@@ -8,6 +8,7 @@ import com.syouth.kmapper.testload.dto.TestDto
 
 internal interface ExampleMapperSupport {
     fun mapIntToString(i: Int): String = i.toString()
+    fun mapFloatToInt(f: Float): Int? = f.toInt()
 }
 
 @Mapper

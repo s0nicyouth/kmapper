@@ -32,6 +32,11 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
 }
 
-sourceSets.main {
-    java.srcDirs("src/main/kotlin")
+kotlin {
+    sourceSets.main {
+        kotlin.srcDirs("src/main/kotlin")
+    }
+    sourceSets.test {
+        kotlin.srcDir("src/test/kotlin")
+    }
 }

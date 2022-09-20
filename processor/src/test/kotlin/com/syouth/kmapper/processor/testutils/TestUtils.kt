@@ -7,7 +7,8 @@ import org.mockito.kotlin.mock
 internal fun mockKSType(
     packageName: String = "com.syouth.test",
     qualifiedName: String = "com.syouth.test.type",
-    nullability: Nullability = Nullability.NOT_NULL
+    nullability: Nullability = Nullability.NOT_NULL,
+    arguments: List<KSTypeArgument> = emptyList()
 ): KSType {
     val packageName: KSName = mock {
         on { asString() } doReturn packageName
@@ -23,21 +24,21 @@ internal fun mockKSType(
     val nullable: KSType = mock() {
         on { isError } doReturn false
         on { this.declaration } doReturn declaration
-        on { arguments } doReturn emptyList()
+        on { this.arguments } doReturn arguments
         on { this.nullability } doReturn Nullability.NULLABLE
     }
 
     val nonNullable: KSType = mock() {
         on { isError } doReturn false
         on { this.declaration } doReturn declaration
-        on { arguments } doReturn emptyList()
+        on { this.arguments } doReturn arguments
         on { this.nullability } doReturn Nullability.NOT_NULL
     }
 
     return mock() {
         on { isError } doReturn false
         on { this.declaration } doReturn declaration
-        on { arguments } doReturn emptyList()
+        on { this.arguments } doReturn arguments
         on { this.nullability } doReturn nullability
         on { makeNullable() } doReturn nullable
         on { makeNotNullable() } doReturn nonNullable
@@ -50,5 +51,15 @@ internal fun mockKSFunctionDeclaration(name: String = "map"): KSFunctionDeclarat
     }
     return mock {
         on { simpleName } doReturn name
+    }
+}
+
+internal fun mockKSTypeArgument(argType: KSType): KSTypeArgument {
+    val typeReference: KSTypeReference = mock {
+        on { resolve() } doReturn argType
+    }
+    return mock {
+        on { type } doReturn typeReference
+        on { variance } doReturn Variance.COVARIANT
     }
 }

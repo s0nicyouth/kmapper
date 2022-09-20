@@ -17,5 +17,6 @@ internal data class ExampleDomain(
     val nullableDataClass: InnerDomain?,
     val collectionList: Collection<InnerDomain>,
     val intToString: String,
-    val innerMappingDomain: InnerMappingDomain
+    val innerMappingDomain: InnerMappingDomain,
+    val listNlb: List<Int?>?,
 )

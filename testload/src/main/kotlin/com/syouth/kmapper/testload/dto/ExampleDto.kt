@@ -17,5 +17,6 @@ internal data class ExampleDto(
     val nullableDataClass: InnerDto?,
     val collectionList: List<InnerDomain>,
     val intToString: Int,
-    val innerMappingDomain: InnerMappingDto
+    val innerMappingDomain: InnerMappingDto,
+    val listNlb: List<Float?>?,
 )
