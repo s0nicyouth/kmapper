@@ -83,12 +83,12 @@ internal class DataClassTypeConverter(
                 add("%L\n", statement.code)
                 endControlFlow()
             } else {
-                add("${mappingProperty.to.name?.asString()} = %L", statement.code)
+                add("${mappingProperty.to.name?.asString()} = %L\n", statement.code)
             }
             if (index < conversionBlocks.size - 1) add(",\n")
         }
         unindent()
-        add(")")
+        add(")\n")
         if (from.nullability == Nullability.NULLABLE) {
             endControlFlow()
         }
