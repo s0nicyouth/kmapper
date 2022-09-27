@@ -48,14 +48,7 @@ internal fun mockKSType(
     whenever(nonNullable.makeNullable()).thenReturn(nullable)
     whenever(nonNullable.makeNotNullable()).thenReturn(nonNullable)
 
-    return mock() {
-        on { isError } doReturn false
-        on { this.declaration } doReturn declaration
-        on { this.arguments } doReturn arguments
-        on { this.nullability } doReturn nullability
-        on { makeNullable() } doReturn nullable
-        on { makeNotNullable() } doReturn nonNullable
-    }
+    return if (nullability == Nullability.NULLABLE) nullable else nonNullable
 }
 
 internal fun mockKSFunctionDeclaration(
