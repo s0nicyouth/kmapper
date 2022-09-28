@@ -22,6 +22,7 @@ rootProject.name = "KMapper"
 include(
     ":processor",
     ":processor_annotations",
+    ":converters",
     ":testload"
 )
 
