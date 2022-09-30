@@ -21,6 +21,8 @@ internal class ConvertersManagerImpl(
     private val mapperClassUserDefinedMethods = mutableListOf<UserDefinedMethodConverter>()
     private val mapperFunctionUserDefinedConvertors = mutableListOf<UserDefinedPropertyConverter>()
 
+    val propertyConverters: List<UserDefinedPropertyConverter> = mapperFunctionUserDefinedConvertors
+
     override fun findConverterForTypes(from: KSType?, to: KSType, targetPath: PathHolder?): TypeConvertor? {
         // First priority: Mapping annotation
         mapperFunctionUserDefinedConvertors.find { it.isSupported(from, to, targetPath) }?.let { return it }

@@ -1,14 +1,9 @@
 package com.syouth.kmapper.processor.convertors.manager
 
-import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.Nullability
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.testutils.*
-import com.syouth.kmapper.processor.testutils.mockKSClassDeclaration
-import com.syouth.kmapper.processor.testutils.mockKSFunctionDeclaration
-import com.syouth.kmapper.processor.testutils.mockKSType
-import com.syouth.kmapper.processor.testutils.mockKValueParameter
-import com.syouth.kmapper.processor_annotations.Mapper
+import com.syouth.kmapper.processor_annotations.Mapping
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -33,5 +28,26 @@ internal class ConverterManagerImplTest {
             PathHolder()
         )
         Assertions.assertNotNull(converter)
+    }
+
+    @Test
+    fun `GIVEN provided property conversion annotation THEN converter initialized correctly`() {
+        val annotation = mockKSAnnotation(
+            shortName = Mapping::class.simpleName!!,
+            qualifiedName = Mapping::class.qualifiedName!!,
+            arguments = listOf(
+                mockKSValueArgument("target", "someTarget"),
+                mockKSValueArgument("source", "someSource")
+            )
+        )
+        val returnType = mockKSType(declarationProperties = listOf(mockKSProperty("someTarget", mockKSType())))
+        val sourceType = mockKValueParameter("someSource", mockKSType())
+        val func = mockKSFunctionDeclaration(
+            returnType = returnType,
+            valueParameters = listOf(sourceType),
+            annotations = listOf(annotation)
+        )
+        manager.initializeForMapperFunction(func)
+        Assertions.assertNotNull(manager.propertyConverters.firstOrNull())
     }
 }

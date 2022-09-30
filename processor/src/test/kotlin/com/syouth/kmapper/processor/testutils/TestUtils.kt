@@ -76,7 +76,8 @@ private fun mockKSClassDeclaration(
 internal fun mockKSFunctionDeclaration(
     name: String = "map",
     valueParameters: List<KSValueParameter> = emptyList(),
-    returnType: KSType? = null
+    returnType: KSType? = null,
+    annotations: List<KSAnnotation> = emptyList()
 ): KSFunctionDeclaration {
     val name: KSName = mock {
         on { asString() } doReturn name
@@ -90,6 +91,7 @@ internal fun mockKSFunctionDeclaration(
         on { simpleName } doReturn name
         on { this.parameters } doReturn valueParameters
         on { this.returnType } doReturn typeReference
+        on { this.annotations } doReturn annotations.asSequence()
     }
 }
 
@@ -129,9 +131,14 @@ internal fun mockKSProperty(nameString: String, type: KSType): KSPropertyDeclara
     }
 }
 
-internal fun mockKSAnnotation(shortName: String = "AnnotationClass", qualifiedName: String = "kotlin.AnnotationsClass"): KSAnnotation {
+internal fun mockKSAnnotation(
+    shortName: String = "AnnotationClass",
+    qualifiedName: String = "kotlin.AnnotationsClass",
+    arguments: List<KSValueArgument> = emptyList()
+): KSAnnotation {
     val shortKSName: KSName  = mock {
         on { asString() } doReturn shortName
+        on { getShortName() } doReturn shortName
     }
     val type = mockKSType(qualifiedName = qualifiedName)
     val typeReference: KSTypeReference = mock {
@@ -140,6 +147,7 @@ internal fun mockKSAnnotation(shortName: String = "AnnotationClass", qualifiedNa
     return mock {
         on { this.shortName } doReturn shortKSName
         on { this.annotationType } doReturn typeReference
+        on { this.arguments } doReturn arguments
     }
 }
 
@@ -162,4 +170,12 @@ internal fun mockKSClassDeclaration(
         annnotations = annnotations,
         functions = functions
     )
+}
+
+internal fun mockKSValueArgument(name: String = "Arg", value: Any? = null): KSValueArgument {
+    val ksName = mock<KSName> { on { asString() } doReturn name }
+    return mock {
+        on { this.name } doReturn ksName
+        on { this.value } doReturn value
+    }
 }
