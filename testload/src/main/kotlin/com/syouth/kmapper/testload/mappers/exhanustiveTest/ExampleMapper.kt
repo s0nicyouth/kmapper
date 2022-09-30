@@ -1,10 +1,10 @@
-package com.syouth.kmapper.testload.mappers
+package com.syouth.kmapper.testload.mappers.exhanustiveTest
 
 import com.syouth.kmapper.processor_annotations.Mapper
 import com.syouth.kmapper.processor_annotations.Mapping
-import com.syouth.kmapper.testload.domain.ExampleDomain
-import com.syouth.kmapper.testload.dto.ExampleDto
-import com.syouth.kmapper.testload.dto.TestDto
+import com.syouth.kmapper.testload.domain.exhaustiveTest.ExampleDomain
+import com.syouth.kmapper.testload.dto.exhaustiveTest.ExampleDto
+import com.syouth.kmapper.testload.dto.exhaustiveTest.TestDto
 
 internal interface ExampleMapperSupport {
     fun mapIntToString(i: Int?): String? = i?.toString()

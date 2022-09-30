@@ -1,4 +1,4 @@
-package com.syouth.kmapper.testload.dto
+package com.syouth.kmapper.testload.dto.exhaustiveTest
 
 internal data class InnerDto(
     val i: Int,

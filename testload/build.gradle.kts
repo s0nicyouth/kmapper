@@ -14,6 +14,7 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(project(":processor"))
     implementation(project(":processor_annotations"))
+    implementation(project(":converters"))
     ksp(project(":processor"))
 }
 

@@ -1,6 +1,6 @@
-package com.syouth.kmapper.testload.dto
+package com.syouth.kmapper.testload.dto.exhaustiveTest
 
-import com.syouth.kmapper.testload.domain.InnerDomain
+import com.syouth.kmapper.testload.domain.exhaustiveTest.InnerDomain
 
 internal data class ExampleDto(
     val long: Long,

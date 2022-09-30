@@ -1,4 +1,4 @@
-package com.syouth.kmapper.testload.domain
+package com.syouth.kmapper.testload.domain.exhaustiveTest
 
 internal data class InnerMappingDomain(
     val i: Int,

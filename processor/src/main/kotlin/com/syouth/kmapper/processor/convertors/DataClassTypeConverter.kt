@@ -54,7 +54,7 @@ internal class DataClassTypeConverter(
             targetPath?.appendPathElement(additionalPath)
             val fromType = it.from?.type?.resolve()
             val converter = convertersManager.findConverterForTypes(fromType, it.to.type.resolve(), targetPath)
-            if (converter == null && !it.to.hasDefault) throw IllegalStateException("Can't map ${it.to.type.toTypeName()} with name ${it.to.name?.asString()} and path $targetPath") // No converter and no default value means fail
+            if (converter == null && !it.to.hasDefault) throw IllegalStateException("Do not know how to convert ${it.to.type.toTypeName()} with name ${it.to.name?.asString()} and path $targetPath") // No converter and no default value means fail
             // Skip generation for inconvertible value with default
             if (converter == null && it.to.hasDefault) {
                 targetPath?.removeLastPathElement()
@@ -69,7 +69,7 @@ internal class DataClassTypeConverter(
         }
         check(conversionStatementIndexToMappingProperty.size == conversionBlocks.size) { "Number of block should be equal to number of mappings" }
         if (from.nullability == Nullability.NULLABLE) {
-            beginControlFlow("if (%N == null) {", fromObjectName)
+            beginControlFlow("if·(%N·==·null)·{", fromObjectName)
             addStatement("null")
             nextControlFlow("else")
         }
@@ -79,7 +79,7 @@ internal class DataClassTypeConverter(
             val mappingProperty = conversionStatementIndexToMappingProperty[index] ?: throw IllegalStateException("Can't find mapping information for conversion statement")
             if (statement.requiresObjectToConvertFrom) {
                 check(mappingProperty.from != null) { "From property is required and should not be null" }
-                beginControlFlow("${mappingProperty.to.name?.asString()} = %N.${mappingProperty.from.simpleName.asString()}.let {", fromObjectName)
+                beginControlFlow("${mappingProperty.to.name?.asString()}·=·%N.${mappingProperty.from.simpleName.asString()}.let·{", fromObjectName)
                 add("%L\n", statement.code)
                 endControlFlow()
             } else {

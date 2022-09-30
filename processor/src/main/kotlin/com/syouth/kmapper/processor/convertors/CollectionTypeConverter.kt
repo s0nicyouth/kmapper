@@ -49,13 +49,13 @@ internal class CollectionTypeConverter(
         val resultTypeSpec = to.getCorrespondingConcreteTypeForSupportedCollectionType()
         beginControlFlow("run {")
         if (from.nullability == Nullability.NULLABLE) {
-            beginControlFlow("if (%N == null) {", fromParameterSpec)
-            addStatement("return@run null")
+            beginControlFlow("if·(%N·==·null) {", fromParameterSpec)
+            addStatement("return@run·null")
             endControlFlow()
         }
-        addStatement("val result = %T()", resultTypeSpec)
+        addStatement("val·result·=·%T()", resultTypeSpec)
         run {
-            beginControlFlow("for (obj in %N) {", fromParameterSpec)
+            beginControlFlow("for·(obj·in·%N)·{", fromParameterSpec)
             val nonNullFromCollectionArgumentType = fromCollectionArgumentType.makeNotNullable()
             val convertor = convertersManager.findConverterForTypes(
                 nonNullFromCollectionArgumentType,
@@ -70,21 +70,21 @@ internal class CollectionTypeConverter(
                 targetPath
             )
             if (fromCollectionArgumentType.nullability == Nullability.NULLABLE) {
-                beginControlFlow("if (obj == null) {")
-                addStatement("result += null")
+                beginControlFlow("if·(obj·==·null)·{")
+                addStatement("result·+=·null")
                 addStatement("continue")
                 endControlFlow()
             }
             run {
                 if (conversionStatement.requiresObjectToConvertFrom) {
-                    beginControlFlow("val converted = obj.let {")
+                    beginControlFlow("val·converted·=·obj.let·{")
                     add("%L\n", conversionStatement.code)
                     endControlFlow()
                 } else {
-                    add("val converted = %L\n", conversionStatement.code)
+                    add("val·converted·=·%L\n", conversionStatement.code)
                 }
             }
-            addStatement("result += converted")
+            addStatement("result·+=·converted")
             endControlFlow()
         }
         addStatement("result")
