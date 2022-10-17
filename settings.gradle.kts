@@ -1,6 +1,6 @@
 pluginManagement {
     plugins {
-        id("com.google.devtools.ksp") version "1.7.20-1.0.6"
+        id("com.google.devtools.ksp") version "1.7.20-1.0.7"
         kotlin("jvm") version "1.7.20"
     }
     repositories {
