@@ -1,12 +1,13 @@
 val kspVersion: String by project
+val kMapperVersion: String by project
 
 plugins {
     kotlin("jvm")
     `java-library`
 }
 
-group = "com.syouth.kmapper.processor"
-version = "1.0"
+group = "com.syouth.kmapper.converters"
+version = kMapperVersion
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions.jvmTarget = "1.8"
