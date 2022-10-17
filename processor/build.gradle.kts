@@ -2,6 +2,7 @@ val kspVersion: String by project
 
 plugins {
     kotlin("jvm")
+    `java-library`
 }
 
 group = "com.syouth.kmapper.processor"
