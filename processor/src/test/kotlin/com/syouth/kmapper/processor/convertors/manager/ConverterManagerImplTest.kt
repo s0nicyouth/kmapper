@@ -3,6 +3,7 @@ package com.syouth.kmapper.processor.convertors.manager
 import com.google.devtools.ksp.symbol.Nullability
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.testutils.*
+import com.syouth.kmapper.processor_annotations.Bind
 import com.syouth.kmapper.processor_annotations.Mapping
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -46,6 +47,52 @@ internal class ConverterManagerImplTest {
             returnType = returnType,
             valueParameters = listOf(sourceType),
             annotations = listOf(annotation)
+        )
+        manager.initializeForMapperFunction(func)
+        Assertions.assertNotNull(manager.propertyConverters.firstOrNull())
+    }
+
+    @Test
+    fun `GIVEN provided bind annotation for a property THEN converter initialized correctly`() {
+        val returnType = mockKSType(declarationProperties = listOf(mockKSProperty("second", mockKSType())))
+        val firstParam = mockKValueParameter("first", mockKSType())
+        val secondParameter = mockKValueParameter(
+            "second",
+            mockKSType(),
+            annotations = listOf(
+                mockKSAnnotation(
+                    shortName = Bind::class.simpleName!!,
+                    qualifiedName = Bind::class.qualifiedName!!,
+                    arguments = listOf(mockKSValueArgument("to", ""))
+                )
+            )
+        )
+        val func = mockKSFunctionDeclaration(
+            returnType = returnType,
+            valueParameters = listOf(firstParam, secondParameter)
+        )
+        manager.initializeForMapperFunction(func)
+        Assertions.assertNotNull(manager.propertyConverters.firstOrNull())
+    }
+
+    @Test
+    fun `GIVEN provided bind annotation for a property WHEN to parameter is present THEN converter initialized correctly`() {
+        val returnType = mockKSType(declarationProperties = listOf(mockKSProperty("second", mockKSType())))
+        val firstParam = mockKValueParameter("first", mockKSType())
+        val secondParameter = mockKValueParameter(
+            "someParameter",
+            mockKSType(),
+            annotations = listOf(
+                mockKSAnnotation(
+                    shortName = Bind::class.simpleName!!,
+                    qualifiedName = Bind::class.qualifiedName!!,
+                    arguments = listOf(mockKSValueArgument("to", "second"))
+                )
+            )
+        )
+        val func = mockKSFunctionDeclaration(
+            returnType = returnType,
+            valueParameters = listOf(firstParam, secondParameter)
         )
         manager.initializeForMapperFunction(func)
         Assertions.assertNotNull(manager.propertyConverters.firstOrNull())

@@ -105,7 +105,11 @@ internal fun mockKSTypeArgument(argType: KSType): KSTypeArgument {
     }
 }
 
-internal fun mockKValueParameter(nameString: String, type: KSType): KSValueParameter {
+internal fun mockKValueParameter(
+    nameString: String,
+    type: KSType,
+    annotations: List<KSAnnotation> = emptyList()
+): KSValueParameter {
     val name: KSName = mock {
         on { asString() } doReturn nameString
     }
@@ -115,6 +119,7 @@ internal fun mockKValueParameter(nameString: String, type: KSType): KSValueParam
     return mock {
         on { this.name } doReturn name
         on { this.type } doReturn typeReference
+        on { this.annotations } doReturn annotations.asSequence()
     }
 }
 

@@ -12,6 +12,7 @@ import com.syouth.kmapper.processor.base.isSupportedCollectionType
 import com.syouth.kmapper.processor.convertors.TypeConvertor
 import com.syouth.kmapper.processor.convertors.UserDefinedMethodConverter
 import com.syouth.kmapper.processor.convertors.UserDefinedPropertyConverter
+import com.syouth.kmapper.processor_annotations.Bind
 import com.syouth.kmapper.processor_annotations.Mapping
 
 internal class ConvertersManagerImpl(
@@ -52,6 +53,18 @@ internal class ConvertersManagerImpl(
                 targetPath = buildPathHolderForType(it.target, func.returnType?.resolve() ?: throw IllegalStateException("Mapper should have a return type")),
                 sourcePath = buildSourcePathHolderFromString(it.source, func)
             )
+        }
+        for (parameter in func.parameters) {
+            parameter.getAnnotationsByType(Bind::class).forEach {
+                val paramName = parameter.name ?: throw IllegalStateException("Parameter should have a name to be bindable")
+                val target = it.to.ifEmpty { paramName.asString() }
+                val source = paramName.asString()
+                mapperFunctionUserDefinedConvertors += UserDefinedPropertyConverter(
+                    convertersManager = this,
+                    targetPath = buildPathHolderForType(target, func.returnType?.resolve() ?: throw IllegalStateException("Mapper should have a return type")),
+                    sourcePath = buildSourcePathHolderFromString(source, func)
+                )
+            }
         }
     }
 
