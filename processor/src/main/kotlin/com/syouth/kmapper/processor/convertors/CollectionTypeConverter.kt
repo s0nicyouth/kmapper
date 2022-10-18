@@ -60,14 +60,14 @@ internal class CollectionTypeConverter(
             val convertor = convertersManager.findConverterForTypes(
                 nonNullFromCollectionArgumentType,
                 toCollectionArgumentType,
-                targetPath
+                null
             ) ?: throw IllegalStateException("Unable to find converter from ${nonNullFromCollectionArgumentType.toTypeName()} to ${toCollectionArgumentType.toTypeName()}")
             val objParameterSpec = ParameterSpec.builder("it", nonNullFromCollectionArgumentType.toClassName()).build()
             val conversionStatement = convertor.buildConversionStatement(
                 objParameterSpec,
                 nonNullFromCollectionArgumentType,
                 toCollectionArgumentType,
-                targetPath
+                null
             )
             if (fromCollectionArgumentType.nullability == Nullability.NULLABLE) {
                 beginControlFlow("if·(obj·==·null)·{")

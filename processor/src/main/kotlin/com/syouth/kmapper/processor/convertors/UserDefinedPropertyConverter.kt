@@ -35,10 +35,10 @@ internal class UserDefinedPropertyConverter(
             code = buildCodeBlock {
                 if (conversionStatement.requiresObjectToConvertFrom) {
                     beginControlFlow("${sourcePath.buildAccessStatementConsideringNullability()}.let {")
-                    addStatement("%L", conversionStatement.code)
+                    add("%L\n", conversionStatement.code)
                     endControlFlow()
                 } else {
-                    add("%L", conversionStatement.code)
+                    add("%L\n", conversionStatement.code)
                 }
             },
             requiresObjectToConvertFrom = false

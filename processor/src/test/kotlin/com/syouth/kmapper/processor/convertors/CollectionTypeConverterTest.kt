@@ -12,10 +12,7 @@ import com.syouth.kmapper.processor.testutils.mockKSType
 import com.syouth.kmapper.processor.testutils.mockKSTypeArgument
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.anyOrNull
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import org.mockito.kotlin.*
 
 internal class CollectionTypeConverterTest {
 
@@ -229,5 +226,43 @@ internal class CollectionTypeConverterTest {
             """.trimIndent(),
             result.code.toString()
         )
+    }
+
+    @Test
+    fun `GIVEN collection WHEN looking for collection type argument converter THEN targetPath for convertion manager is set to null`() {
+        val internalConverter = object : TypeConvertor {
+            override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean = true
+
+            override fun buildConversionStatement(
+                fromParameterSpec: ParameterSpec?,
+                from: KSType?,
+                to: KSType,
+                targetPath: PathHolder?
+            ): AssignableStatement = AssignableStatement(
+                code = buildCodeBlock {
+                    add("someObject")
+                },
+                requiresObjectToConvertFrom = false
+            )
+        }
+        whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
+        val parameterSpec = ParameterSpec.builder("it", firstCollectionTypeFloat.toTypeName()).build()
+        val result = convertor.buildConversionStatement(parameterSpec, firstCollectionTypeFloat, secondCollectionTypeInt, PathHolder())
+        Assertions.assertTrue(result.requiresObjectToConvertFrom)
+        Assertions.assertEquals(
+            """
+                run {
+                  val result = kotlin.collections.ArrayList<out kotlin.Int>()
+                  for (obj in it) {
+                    val converted = someObject
+                    result += converted
+                  }
+                  result
+                }
+                
+            """.trimIndent(),
+            result.code.toString()
+        )
+        verify(convertersManager).findConverterForTypes(anyOrNull(), any(), eq(null))
     }
 }

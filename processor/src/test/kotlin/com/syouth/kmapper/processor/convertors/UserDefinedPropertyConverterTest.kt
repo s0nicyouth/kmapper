@@ -130,7 +130,7 @@ internal class UserDefinedPropertyConverterTest {
         whenever(converterManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val assignableStatement = converter.buildConversionStatement(null, null, mockKSType(qualifiedName = "com.syouth.test.type2"), targetPath)
         Assertions.assertFalse(assignableStatement.requiresObjectToConvertFrom)
-        Assertions.assertEquals("10", assignableStatement.code.toString())
+        Assertions.assertEquals("10\n", assignableStatement.code.toString())
     }
 
     @Test
