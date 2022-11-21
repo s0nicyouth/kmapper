@@ -4,6 +4,7 @@ val kMapperVersion: String by project
 plugins {
     kotlin("jvm")
     `java-library`
+    `maven-publish`
 }
 
 group = "com.syouth.kmapper.converters"
@@ -11,6 +12,11 @@ version = kMapperVersion
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 tasks.test {
@@ -33,5 +39,17 @@ kotlin {
     }
     sourceSets.test {
         kotlin.srcDir("src/test/kotlin")
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.syouth.kmapper"
+            artifactId = "converters"
+            version = version
+
+            from(components["java"])
+        }
     }
 }
