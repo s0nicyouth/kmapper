@@ -32,7 +32,7 @@ internal class CollectionTypeConverter(
         return AssignableStatement(
             code = when {
                 areSameSupportedCollectionTypes(from, to) -> buildCodeBlockForSameTypes(fromParameterSpec)
-                from.isSupportedCollectionType() && to.isSupportedCollectionType() -> buildCodeBlockForDataClasses(fromParameterSpec, from, to, targetPath)
+                from.isSupportedCollectionType() && to.isSupportedCollectionType() -> buildCodeBlockForDataClasses(fromParameterSpec, from, to)
                 else -> throw IllegalStateException("One of or both data types not supported: ${from.declaration.simpleName} ${to.declaration.simpleName}")
             },
             requiresObjectToConvertFrom = true
@@ -43,7 +43,7 @@ internal class CollectionTypeConverter(
         add("%N", fromParameterSpec)
     }
 
-    private fun buildCodeBlockForDataClasses(fromParameterSpec: ParameterSpec, from: KSType, to: KSType, targetPath: PathHolder?): CodeBlock = buildCodeBlock {
+    private fun buildCodeBlockForDataClasses(fromParameterSpec: ParameterSpec, from: KSType, to: KSType): CodeBlock = buildCodeBlock {
         val fromCollectionArgumentType = from.extractSupportedCollectionTypeArgumentType()
         val toCollectionArgumentType = to.extractSupportedCollectionTypeArgumentType()
         val resultTypeSpec = to.getCorrespondingConcreteTypeForSupportedCollectionType()
