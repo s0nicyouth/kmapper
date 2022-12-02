@@ -1,3 +1,5 @@
+val kMapperVersion: String by project
+
 plugins {
     application
     kotlin("jvm")
@@ -12,9 +14,9 @@ application {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation(project(":processor_annotations"))
-    implementation(project(":converters"))
-    ksp(project(":processor"))
+    implementation("io.github.s0nicyouth:processor_annotations:$kMapperVersion")
+    implementation("io.github.s0nicyouth:converters:$kMapperVersion")
+    ksp("io.github.s0nicyouth:processor:$kMapperVersion")
 }
 
 kotlin {
