@@ -6,6 +6,11 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+repositories {
+    mavenCentral()
+    maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
+}
+
 version = "1.0"
 
 application {
@@ -17,14 +22,4 @@ dependencies {
     implementation("io.github.s0nicyouth:processor_annotations:$kMapperVersion")
     implementation("io.github.s0nicyouth:converters:$kMapperVersion")
     ksp("io.github.s0nicyouth:processor:$kMapperVersion")
-}
-
-kotlin {
-    sourceSets.main {
-        kotlin.srcDirs("src/main/kotlin")
-        kotlin.srcDir("build/generated/ksp/main/kotlin")
-    }
-    sourceSets.test {
-        kotlin.srcDir("build/generated/ksp/test/kotlin")
-    }
 }
