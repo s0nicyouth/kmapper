@@ -19,6 +19,7 @@ java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
     withSourcesJar()
+    withJavadocJar()
 }
 
 tasks.test {
@@ -57,6 +58,7 @@ publishing {
                 name.set("kMapper converters")
                 description.set("Converters for kMapper library")
                 url.set("https://github.com/s0nicyouth/kmapper")
+                scm { url.set("https://github.com/s0nicyouth/kmapper/tree/master/converters") }
                 licenses {
                     license {
                         name.set("The Apache License, Version 2.0")
