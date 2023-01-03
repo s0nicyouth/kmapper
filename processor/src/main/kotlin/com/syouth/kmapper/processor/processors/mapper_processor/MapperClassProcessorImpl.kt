@@ -9,6 +9,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 import com.syouth.kmapper.processor.base.*
 import com.syouth.kmapper.processor.base.data.MapperInformation
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
+import com.syouth.kmapper.processor.injectors.providerInjector
 import com.syouth.kmapper.processor_annotations.Mapper
 
 internal class MapperClassProcessorImpl constructor(
@@ -21,11 +22,14 @@ internal class MapperClassProcessorImpl constructor(
         val functionDeclarations = type.findAbstractMappingFunctionDeclarations()
         val mappersToImplement = functionDeclarations.map { it.getMappingInformation() }
 
+        val injector = providerInjector(environment.options)
         val implementationBuilder =
             TypeSpec
                 .classBuilder("${type.simpleName.asString()}Impl")
-                .addModifiers(KModifier.INTERNAL)
+                .addModifiers(injector.classModifier)
                 .addSuperinterface(type.toClassName())
+
+        injector.processClassSpec(implementationBuilder)
 
         for (mapper in mappersToImplement) {
             processMapper(mapper, implementationBuilder)
