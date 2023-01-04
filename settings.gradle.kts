@@ -23,6 +23,7 @@ include(
     ":processor",
     ":processor_annotations",
     ":converters",
-    ":testload"
+    ":examples:testload",
+    ":examples:koin",
 )
 
