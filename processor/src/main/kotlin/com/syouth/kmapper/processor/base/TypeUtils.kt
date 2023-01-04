@@ -8,12 +8,16 @@ import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.syouth.kmapper.processor.base.data.SUPPORTED_CONVERSION_INTERFACES
 import com.syouth.kmapper.processor.base.data.SUPPORTED_CONVERSION_INTERFACES_CORRESPONDING_CONCRETE_TYPES
+import com.syouth.kmapper.processor.base.data.SUPPORTED_MAP_CONVERSION_INTERFACES
 
 internal fun KSType.isDataClass() =
     declaration.modifiers.contains(Modifier.DATA)
 
 internal fun KSType.isSupportedCollectionType() =
     declaration.qualifiedName?.asString() in SUPPORTED_CONVERSION_INTERFACES
+
+internal fun KSType.isSupportedMapCollectionType() =
+    declaration.qualifiedName?.asString() in SUPPORTED_MAP_CONVERSION_INTERFACES
 
 internal fun areSameSupportedCollectionTypes(first: KSType, second: KSType): Boolean {
     if (first.declaration.qualifiedName?.asString() != second.declaration.qualifiedName?.asString()) return false
@@ -23,9 +27,17 @@ internal fun areSameSupportedCollectionTypes(first: KSType, second: KSType): Boo
     return true
 }
 
+internal fun areSameSupportedMapCollectionTypes(first: KSType, second: KSType): Boolean {
+    if (first.declaration.qualifiedName?.asString() != second.declaration.qualifiedName?.asString()) return false
+    if (first.declaration.qualifiedName?.asString() !in SUPPORTED_MAP_CONVERSION_INTERFACES) return false
+    if (first.arguments.size != second.arguments.size) return false
+    return checkMapCollectionTypeKeyArgumentsNullabilitySufficient(first, second)
+            && checkSameTypeWithNullabilitySufficient(first.arguments.firstOrNull()?.type?.resolve(), second.arguments.firstOrNull()?.type?.resolve())
+}
+
 internal fun KSType.getCorrespondingConcreteTypeForSupportedCollectionType(): TypeName {
     val qualifiedName = declaration.qualifiedName?.asString() ?: throw IllegalStateException("Can't resolve qualified name")
-    if (qualifiedName in SUPPORTED_CONVERSION_INTERFACES) {
+    if (qualifiedName in SUPPORTED_CONVERSION_INTERFACES || qualifiedName in SUPPORTED_MAP_CONVERSION_INTERFACES) {
         val concreteType = SUPPORTED_CONVERSION_INTERFACES_CORRESPONDING_CONCRETE_TYPES[qualifiedName] ?: throw IllegalStateException("Can't find concrete type for collection type")
         val indexOfLastDot = concreteType.lastIndexOf(".")
         if (indexOfLastDot == -1) throw IllegalStateException("Wrong type qualified name")
@@ -33,7 +45,7 @@ internal fun KSType.getCorrespondingConcreteTypeForSupportedCollectionType(): Ty
         val typeName = concreteType.substring(indexOfLastDot + 1)
         return ClassName(packageName, typeName).parameterizedBy(arguments[0].toTypeName())
     } else {
-        TODO()
+        throw IllegalStateException("Collection type not supported")
     }
 }
 
@@ -42,6 +54,20 @@ internal fun checkCollectionArgumentsNullabilitySufficient(from: KSType?, to: KS
     val fromArgument = from.arguments.firstOrNull()?.type?.resolve() ?: throw IllegalStateException("Collection should have arguments ${from.declaration.simpleName.asString()}")
     val toArgument = to.arguments.firstOrNull()?.type?.resolve() ?: throw IllegalStateException("Collection should have arguments ${to.declaration.simpleName.asString()}")
     return checkDifferentTypesNullabilitySufficient(fromArgument, toArgument)
+}
+
+internal fun checkMapCollectionTypeArgumentsNullabilitySufficient(from: KSType?, to: KSType?): Boolean {
+    if (from == null || to == null) throw IllegalStateException("Types can not be null")
+    val fromArgument = from.arguments.getOrNull(1)?.type?.resolve() ?: throw IllegalStateException("Collection should have arguments ${from.declaration.simpleName.asString()}")
+    val toArgument = to.arguments.getOrNull(1)?.type?.resolve() ?: throw IllegalStateException("Collection should have arguments ${to.declaration.simpleName.asString()}")
+    return checkDifferentTypesNullabilitySufficient(fromArgument, toArgument)
+}
+
+internal fun checkMapCollectionTypeKeyArgumentsNullabilitySufficient(from: KSType?, to: KSType?): Boolean {
+    if (from == null || to == null) throw IllegalStateException("Types can not be null")
+    val fromKeyArgument = from.arguments.firstOrNull()?.type?.resolve() ?: throw IllegalStateException("Collection should have arguments ${from.declaration.simpleName.asString()}")
+    val toKeyArgument = to.arguments.firstOrNull()?.type?.resolve() ?: throw IllegalStateException("Collection should have arguments ${to.declaration.simpleName.asString()}")
+    return checkDifferentTypesNullabilitySufficient(fromKeyArgument, toKeyArgument)
 }
 
 internal fun checkDifferentTypesNullabilitySufficient(from: KSType?, to: KSType?): Boolean {
@@ -60,3 +86,9 @@ internal fun KSType.isCollectionTypeArgumentDataClass(): Boolean =
 
 internal fun KSType.extractSupportedCollectionTypeArgumentType(): KSType =
    arguments.firstOrNull()?.type?.resolve() ?: throw IllegalStateException("Can't find collection type argument for ${this.toClassName().simpleName}")
+
+internal fun KSType.extractSupportedMapCollectionTypeArgument(): KSType =
+    arguments.getOrNull(1)?.type?.resolve() ?: throw IllegalStateException("Can't find map collection type argument for ${this.toClassName().simpleName}")
+
+internal fun KSType.extractSupportedMapCollectionKeyTypeArgument(): KSType =
+    arguments.firstOrNull()?.type?.resolve() ?: throw IllegalStateException("Can't find map collection type argument for ${this.toClassName().simpleName}")
