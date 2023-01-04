@@ -35,7 +35,8 @@ dependencies {
     implementation("com.squareup:kotlinpoet-ksp:1.12.0")
     implementation("com.google.devtools.ksp:symbol-processing-api:$kspVersion")
 
-    implementation("io.github.s0nicyouth:processor_annotations:$version")
+//    implementation("io.github.s0nicyouth:processor_annotations:$version")
+    implementation(project(":processor_annotations"))
 
     testImplementation(platform("org.junit:junit-bom:5.9.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
