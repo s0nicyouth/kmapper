@@ -25,5 +25,6 @@ include(
     ":converters",
     ":examples:testload",
     ":examples:koin",
+    ":examples:anvil",
 )
 
