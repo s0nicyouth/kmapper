@@ -1,3 +1,5 @@
+val kMapperVersion: String by project
+
 plugins {
     application
     kotlin("jvm")
@@ -28,9 +30,14 @@ sourceSets.main {
 dependencies {
     implementation(kotlin("stdlib"))
 
-    implementation(project(":processor_annotations"))
-    implementation(project(":converters"))
-    ksp(project(":processor"))
+    implementation("io.github.s0nicyouth:processor_annotations:$kMapperVersion")
+    implementation("io.github.s0nicyouth:converters:$kMapperVersion")
+    ksp("io.github.s0nicyouth:processor:$kMapperVersion")
+
+    // uncomment this if you want to work on processor and example project at once (no need to redeploy the project after every processor change)
+//    implementation(project(":processor_annotations"))
+//    implementation(project(":converters"))
+//    ksp(project(":processor"))
 
     implementation("com.google.dagger:dagger:2.44.2")
     kapt("com.google.dagger:dagger-compiler:2.44.2")
