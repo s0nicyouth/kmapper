@@ -33,11 +33,13 @@ internal fun mockKSType(
         functions = functions
     )
 
+    val isMarkedNullable = nullability == Nullability.NULLABLE
     val nullable: KSType = mock() {
         on { isError } doReturn false
         on { this.declaration } doReturn declaration
         on { this.arguments } doReturn arguments
         on { this.nullability } doReturn Nullability.NULLABLE
+        on { this.isMarkedNullable} doReturn isMarkedNullable
     }
 
     val nonNullable: KSType = mock() {
@@ -45,6 +47,7 @@ internal fun mockKSType(
         on { this.declaration } doReturn declaration
         on { this.arguments } doReturn arguments
         on { this.nullability } doReturn Nullability.NOT_NULL
+        on { this.isMarkedNullable} doReturn false
     }
 
     whenever(nullable.makeNotNullable()).thenReturn(nonNullable)

@@ -21,6 +21,7 @@ internal class KMapperProcessor(
         builtInConverters.add(NonCollectionTypeConverter())
         builtInConverters.add(DataClassTypeConverter(convertersManager))
         builtInConverters.add(CollectionTypeConverter(convertersManager))
+        builtInConverters.add(MapCollectionConverter(convertersManager))
 
         val mapperClassProcessor = MapperClassProcessorImpl(
             convertersManager,

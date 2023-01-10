@@ -172,7 +172,7 @@ internal class CollectionTypeConverterTest {
         Assertions.assertEquals(
             """
                 run {
-                  val result = kotlin.collections.ArrayList<out kotlin.Int>()
+                  val result = kotlin.collections.ArrayList<out kotlin.Int?>()
                   for (obj in it) {
                     if (obj == null) {
                       result += null
