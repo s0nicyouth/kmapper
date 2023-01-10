@@ -43,7 +43,11 @@ internal fun KSType.getCorrespondingConcreteTypeForSupportedCollectionType(): Ty
         if (indexOfLastDot == -1) throw IllegalStateException("Wrong type qualified name")
         val packageName = concreteType.substring(0, indexOfLastDot)
         val typeName = concreteType.substring(indexOfLastDot + 1)
-        return ClassName(packageName, typeName).parameterizedBy(arguments[0].toTypeName())
+        return if (qualifiedName in SUPPORTED_CONVERSION_INTERFACES) {
+            ClassName(packageName, typeName).parameterizedBy(arguments[0].toTypeName())
+        } else {
+            ClassName(packageName, typeName).parameterizedBy(arguments[0].toTypeName(), arguments[1].toTypeName())
+        }
     } else {
         throw IllegalStateException("Collection type not supported")
     }

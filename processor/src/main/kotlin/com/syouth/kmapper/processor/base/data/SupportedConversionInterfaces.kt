@@ -14,6 +14,7 @@ internal val SUPPORTED_CONVERSION_INTERFACES = setOf(
 internal val SUPPORTED_MAP_CONVERSION_INTERFACES = setOf(
     "kotlin.collections.Map",
     "kotlin.collections.MutableMap",
+    "kotlin.collections.HashMap",
 )
 
 internal val SUPPORTED_CONVERSION_INTERFACES_CORRESPONDING_CONCRETE_TYPES = mapOf(
@@ -27,4 +28,5 @@ internal val SUPPORTED_CONVERSION_INTERFACES_CORRESPONDING_CONCRETE_TYPES = mapO
     "kotlin.collections.MutableSet" to "kotlin.collections.HashSet",
     "kotlin.collections.Map" to "kotlin.collections.HashMap",
     "kotlin.collections.MutableMap" to "kotlin.collections.HashMap",
+    "kotlin.collections.HashMap" to "kotlin.collections.HashMap",
 )
