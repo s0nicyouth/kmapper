@@ -22,7 +22,7 @@ internal class DataClassTypeConverter(
 ) : TypeConvertor {
     override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean {
         if (from == null) return false
-        return from.isDataClass() && to.isDataClass() &&
+        return (from.isDataClass() || to.isDataClass()) &&
                 checkDifferentTypesNullabilitySufficient(from, to)
     }
 
