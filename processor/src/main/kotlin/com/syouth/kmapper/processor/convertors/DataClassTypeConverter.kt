@@ -23,7 +23,10 @@ internal class DataClassTypeConverter(
 ) : TypeConvertor {
     override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean {
         if (from == null) return false
-        return ! (from.isSupportedCollectionType() || to.isSupportedMapCollectionType()) &&
+        return !( from.isSupportedCollectionType() ||
+                  from.isSupportedMapCollectionType() ||
+                  to.isSupportedCollectionType() ||
+                  to.isSupportedMapCollectionType()) &&
                 checkDifferentTypesNullabilitySufficient(from, to)
     }
 

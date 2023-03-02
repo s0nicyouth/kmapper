@@ -25,6 +25,8 @@ internal class DataClassTypeConverterTest {
     private val floatType = mockKSType(packageName = "kotlin", qualifiedName = "kotlin.Float")
     private val floatValueParam = mockKValueParameter("fType", floatType)
     private val floatProperTy = mockKSProperty("fType", floatType)
+    private val mapCollectionType = mockKSType(packageName = "kotlin.collections", qualifiedName = "kotlin.collections.Map")
+    private val listCollectionType = mockKSType(packageName = "kotlin.collections", qualifiedName = "kotlin.collections.List")
     private val fromDataType = mockKSType(modifiers = setOf(Modifier.DATA), declarationProperties = listOf(floatProperTy))
     private val toDataType = mockKSType(packageName = "fake", qualifiedName = "cls", modifiers = setOf(Modifier.DATA), constructorParams = listOf(floatValueParam))
     private val convertersManager: ConvertersManager = mock {
@@ -55,6 +57,29 @@ internal class DataClassTypeConverterTest {
     @Test
     fun `GIVEN all data correct WHEN from is not nullable and to is nullable THEN true is returned`() {
         Assertions.assertTrue(converter.isSupported(fromDataType, toDataType.makeNullable(), PathHolder()))
+    }
+
+    @Test
+    fun `GIVEN from type is map collection THEN false returned`() {
+        Assertions.assertFalse(converter.isSupported(mapCollectionType, mockKSType(), PathHolder()))
+    }
+    @Test
+    fun `GIVEN from type is collection THEN false returned`() {
+        Assertions.assertFalse(converter.isSupported(listCollectionType, mockKSType(), PathHolder()))
+    }
+
+    @Test
+    fun `GIVEN to type is map collection THEN false returned`() {
+        Assertions.assertFalse(converter.isSupported(mockKSType(), mapCollectionType, PathHolder()))
+    }
+    @Test
+    fun `GIVEN to type is collection THEN false returned`() {
+        Assertions.assertFalse(converter.isSupported(mockKSType(), listCollectionType, PathHolder()))
+    }
+
+    @Test
+    fun `GIVEN to type is collection and from is map collection THEN false returned`() {
+        Assertions.assertFalse(converter.isSupported(mapCollectionType, listCollectionType, PathHolder()))
     }
 
     @Test
