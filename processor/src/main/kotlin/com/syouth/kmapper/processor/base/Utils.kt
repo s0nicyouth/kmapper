@@ -41,10 +41,8 @@ internal fun KSFunctionDeclaration.getMappingInformation(): MapperInformation {
     val from = parameters[0].type.resolve()
     val to = returnType!!.resolve()
     if (from.declaration !is KSClassDeclaration || to.declaration !is KSClassDeclaration) throw IllegalStateException("Mapping should be from class to class.")
-    if (!(from.isDataClass() && to.isDataClass()) &&
-        !(from.isDataClass() && !to.isDataClass()) &&
-        !(!from.isDataClass() && to.isDataClass()))
-        throw IllegalStateException("Mapping is only supported for data classes")
+    if (!from.isDataClass() && !to.isDataClass())
+        throw IllegalStateException("Mapping from plain class to plain class is not supported yet")
     return MapperInformation(
         mapperParams = parameters,
         to = to,
