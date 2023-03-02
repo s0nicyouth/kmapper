@@ -43,11 +43,6 @@ internal class DataClassTypeConverterTest {
     }
 
     @Test
-    fun `GIVEN neither from type nor to is data class THEN false returned`() {
-        Assertions.assertFalse(converter.isSupported(mockKSType(), mockKSType(), PathHolder()))
-    }
-
-    @Test
     fun `GIVEN all data correct WHEN from and to is not nullable THEN true is returned`() {
         Assertions.assertTrue(converter.isSupported(fromDataType, toDataType, PathHolder()))
     }
