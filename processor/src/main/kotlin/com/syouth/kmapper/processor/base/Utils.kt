@@ -52,7 +52,7 @@ internal fun KSFunctionDeclaration.getMappingInformation(): MapperInformation {
 internal fun KSClassDeclaration.buildMappingTable(from: KSClassDeclaration): List<MappingProperties> {
     val result = mutableListOf<MappingProperties>()
     val toProperties = primaryConstructor?.parameters
-        ?: throw IllegalStateException("Data class $classKind ${from.simpleName.asString()} should have primary constructor")
+        ?: throw IllegalStateException("Class $classKind ${from.simpleName.asString()} should have primary constructor")
     val fromProperties = from.getAllProperties().filter { it.isPublic() }
     for (toProp in toProperties) {
         val fromProp = fromProperties.find { it.simpleName.asString() == toProp.name?.asString() }

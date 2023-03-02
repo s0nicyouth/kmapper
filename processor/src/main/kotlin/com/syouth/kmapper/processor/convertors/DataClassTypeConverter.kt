@@ -9,12 +9,12 @@ import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
-import com.syouth.kmapper.processor.base.*
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.base.buildMappingTable
 import com.syouth.kmapper.processor.base.checkDifferentTypesNullabilitySufficient
 import com.syouth.kmapper.processor.base.data.MappingProperties
-import com.syouth.kmapper.processor.base.isDataClass
+import com.syouth.kmapper.processor.base.isSupportedCollectionType
+import com.syouth.kmapper.processor.base.isSupportedMapCollectionType
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
 import com.syouth.kmapper.processor.convertors.models.AssignableStatement
 
@@ -23,6 +23,7 @@ internal class DataClassTypeConverter(
 ) : TypeConvertor {
     override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean {
         if (from == null) return false
+        // ToDo Think about better solution to classify classes responsible for conversion
         return !( from.isSupportedCollectionType() ||
                   from.isSupportedMapCollectionType() ||
                   to.isSupportedCollectionType() ||
