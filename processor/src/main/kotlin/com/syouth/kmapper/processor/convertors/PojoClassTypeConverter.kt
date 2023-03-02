@@ -18,7 +18,7 @@ import com.syouth.kmapper.processor.base.isSupportedMapCollectionType
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
 import com.syouth.kmapper.processor.convertors.models.AssignableStatement
 
-internal class DataClassTypeConverter(
+internal class PojoClassTypeConverter(
     private val convertersManager: ConvertersManager
 ) : TypeConvertor {
     override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean {

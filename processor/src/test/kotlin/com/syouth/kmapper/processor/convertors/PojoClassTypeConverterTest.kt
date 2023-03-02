@@ -20,7 +20,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.lang.IllegalStateException
 
-internal class DataClassTypeConverterTest {
+internal class PojoClassTypeConverterTest {
 
     private val floatType = mockKSType(packageName = "kotlin", qualifiedName = "kotlin.Float")
     private val floatValueParam = mockKValueParameter("fType", floatType)
@@ -32,7 +32,7 @@ internal class DataClassTypeConverterTest {
     private val convertersManager: ConvertersManager = mock {
 
     }
-    private val converter = DataClassTypeConverter(convertersManager)
+    private val converter = PojoClassTypeConverter(convertersManager)
 
     @Test
     fun `GIVEN from type is null THEN false is returned`() {

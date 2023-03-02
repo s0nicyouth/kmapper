@@ -19,7 +19,7 @@ internal class KMapperProcessor(
         val builtInConverters = mutableListOf<TypeConvertor>()
         val convertersManager = ConvertersManagerImpl(builtInConverters)
         builtInConverters.add(NonCollectionTypeConverter())
-        builtInConverters.add(DataClassTypeConverter(convertersManager))
+        builtInConverters.add(PojoClassTypeConverter(convertersManager))
         builtInConverters.add(CollectionTypeConverter(convertersManager))
         builtInConverters.add(MapCollectionConverter(convertersManager))
 
