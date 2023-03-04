@@ -29,6 +29,8 @@ internal class PojoClassTypeConverterTest {
     private val listCollectionType = mockKSType(packageName = "kotlin.collections", qualifiedName = "kotlin.collections.List")
     private val fromDataType = mockKSType(modifiers = setOf(Modifier.DATA), declarationProperties = listOf(floatProperTy))
     private val toDataType = mockKSType(packageName = "fake", qualifiedName = "cls", modifiers = setOf(Modifier.DATA), constructorParams = listOf(floatValueParam))
+    private val fromPojoType = mockKSType(declarationProperties = listOf(floatProperTy))
+    private val toPojoType = mockKSType(packageName = "fake", qualifiedName = "cls", constructorParams = listOf(floatValueParam))
     private val convertersManager: ConvertersManager = mock {
 
     }
@@ -258,6 +260,178 @@ internal class PojoClassTypeConverterTest {
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val paramSpec = ParameterSpec.builder("it", mockKSType(modifiers = setOf(Modifier.DATA)).toTypeName()).build()
         val assignableStatement = converter.buildConversionStatement(paramSpec, fromDataType, toDataType, PathHolder())
+        Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
+        Assertions.assertEquals(
+            """
+                fake.cls(
+                  fType = it
+                )
+                
+            """.trimIndent(),
+            assignableStatement.code.toString()
+        )
+    }
+
+    @Test
+    fun `GIVEN both from and to are not nullable WHEN data is POJO THEN code generation is correct`() {
+        val internalConverter = object : TypeConvertor {
+            override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean = true
+
+            override fun buildConversionStatement(
+                fromParameterSpec: ParameterSpec?,
+                from: KSType?,
+                to: KSType,
+                targetPath: PathHolder?
+            ): AssignableStatement = AssignableStatement(
+                code = buildCodeBlock {
+                    add("it")
+                },
+                requiresObjectToConvertFrom = true
+            )
+        }
+        whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
+        val paramSpec = ParameterSpec.builder("it", mockKSType().toTypeName()).build()
+        val assignableStatement = converter.buildConversionStatement(paramSpec, fromPojoType, toPojoType, PathHolder())
+        Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
+        Assertions.assertEquals(
+            """
+                fake.cls(
+                  fType = it.fType.let {
+                    it
+                  }
+                )
+                
+            """.trimIndent(),
+            assignableStatement.code.toString()
+        )
+    }
+
+    @Test
+    fun `GIVEN from is nullable WHEN data is POJO THEN code generation is correct`() {
+        val internalConverter = object : TypeConvertor {
+            override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean = true
+
+            override fun buildConversionStatement(
+                fromParameterSpec: ParameterSpec?,
+                from: KSType?,
+                to: KSType,
+                targetPath: PathHolder?
+            ): AssignableStatement = AssignableStatement(
+                code = buildCodeBlock {
+                    add("it")
+                },
+                requiresObjectToConvertFrom = true
+            )
+        }
+        whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
+        val paramSpec = ParameterSpec.builder("it", mockKSType().toTypeName()).build()
+        val assignableStatement = converter.buildConversionStatement(paramSpec, fromPojoType.makeNullable(), toPojoType.makeNullable(), PathHolder())
+        Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
+        Assertions.assertEquals(
+            """
+                if (it == null) {
+                  null
+                } else {
+                  fake.cls(
+                    fType = it.fType.let {
+                      it
+                    }
+                  )
+                }
+                
+            """.trimIndent(),
+            assignableStatement.code.toString()
+        )
+    }
+
+    @Test
+    fun `GIVEN from is nullable an to is not WHEN data is POJO THEN exception is thrown`() {
+        val internalConverter = object : TypeConvertor {
+            override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean = true
+
+            override fun buildConversionStatement(
+                fromParameterSpec: ParameterSpec?,
+                from: KSType?,
+                to: KSType,
+                targetPath: PathHolder?
+            ): AssignableStatement = AssignableStatement(
+                code = buildCodeBlock {
+                    add("it")
+                },
+                requiresObjectToConvertFrom = true
+            )
+        }
+        whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
+        val paramSpec = ParameterSpec.builder("it", mockKSType().toTypeName()).build()
+        Assertions.assertThrows(IllegalStateException::class.java) {
+            converter.buildConversionStatement(paramSpec, fromPojoType.makeNullable(), toPojoType, PathHolder())
+        }
+    }
+
+    @Test
+    fun `GIVEN from is nullable WHEN more then two params in class and data is POJO THEN code generation is correct`() {
+        val internalConverter = object : TypeConvertor {
+            override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean = true
+
+            override fun buildConversionStatement(
+                fromParameterSpec: ParameterSpec?,
+                from: KSType?,
+                to: KSType,
+                targetPath: PathHolder?
+            ): AssignableStatement = AssignableStatement(
+                code = buildCodeBlock {
+                    add("it")
+                },
+                requiresObjectToConvertFrom = true
+            )
+        }
+        whenever((fromPojoType.declaration as  KSClassDeclaration).getAllProperties()).thenReturn(listOf(floatProperTy, floatProperTy).asSequence())
+        whenever((toPojoType.declaration as KSClassDeclaration).primaryConstructor!!.parameters).thenReturn(listOf(floatValueParam, floatValueParam))
+        whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
+        val paramSpec = ParameterSpec.builder("it", mockKSType().toTypeName()).build()
+        val assignableStatement = converter.buildConversionStatement(paramSpec, fromPojoType.makeNullable(), toPojoType.makeNullable(), PathHolder())
+        Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
+        Assertions.assertEquals(
+            """
+                if (it == null) {
+                  null
+                } else {
+                  fake.cls(
+                    fType = it.fType.let {
+                      it
+                    }
+                    ,
+                    fType = it.fType.let {
+                      it
+                    }
+                  )
+                }
+                
+            """.trimIndent(),
+            assignableStatement.code.toString()
+        )
+    }
+
+    @Test
+    fun `GIVEN from is not nullable WHEN input param is not needed and data is POJO THEN code generation is correct`() {
+        val internalConverter = object : TypeConvertor {
+            override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean = true
+
+            override fun buildConversionStatement(
+                fromParameterSpec: ParameterSpec?,
+                from: KSType?,
+                to: KSType,
+                targetPath: PathHolder?
+            ): AssignableStatement = AssignableStatement(
+                code = buildCodeBlock {
+                    add("it")
+                },
+                requiresObjectToConvertFrom = false
+            )
+        }
+        whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
+        val paramSpec = ParameterSpec.builder("it", mockKSType().toTypeName()).build()
+        val assignableStatement = converter.buildConversionStatement(paramSpec, fromPojoType, toPojoType, PathHolder())
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
