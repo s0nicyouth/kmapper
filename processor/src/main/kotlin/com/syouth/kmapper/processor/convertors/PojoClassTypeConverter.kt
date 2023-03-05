@@ -13,16 +13,21 @@ import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.base.buildMappingTable
 import com.syouth.kmapper.processor.base.checkDifferentTypesNullabilitySufficient
 import com.syouth.kmapper.processor.base.data.MappingProperties
-import com.syouth.kmapper.processor.base.isDataClass
+import com.syouth.kmapper.processor.base.isSupportedCollectionType
+import com.syouth.kmapper.processor.base.isSupportedMapCollectionType
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
 import com.syouth.kmapper.processor.convertors.models.AssignableStatement
 
-internal class DataClassTypeConverter(
+internal class PojoClassTypeConverter(
     private val convertersManager: ConvertersManager
 ) : TypeConvertor {
     override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean {
         if (from == null) return false
-        return from.isDataClass() && to.isDataClass() &&
+        // ToDo Think about better solution to classify classes responsible for conversion
+        return !( from.isSupportedCollectionType() ||
+                  from.isSupportedMapCollectionType() ||
+                  to.isSupportedCollectionType() ||
+                  to.isSupportedMapCollectionType()) &&
                 checkDifferentTypesNullabilitySufficient(from, to)
     }
 
@@ -54,7 +59,7 @@ internal class DataClassTypeConverter(
             targetPath?.appendPathElement(additionalPath)
             val fromType = it.from?.type?.resolve()
             val converter = convertersManager.findConverterForTypes(fromType, it.to.type.resolve(), targetPath)
-            if (converter == null && !it.to.hasDefault) throw IllegalStateException("Do not know how to convert ${it.to.type.toTypeName()} with name ${it.to.name?.asString()} and path $targetPath") // No converter and no default value means fail
+            if (converter == null && !it.to.hasDefault) throw IllegalStateException("Do not know how to convert from ${fromObjectName.name}/${fromType?.declaration?.simpleName} to w${it.to.type.toTypeName()} with name ${it.to.name?.asString()} and path $targetPath") // No converter and no default value means fail
             // Skip generation for inconvertible value with default
             if (converter == null && it.to.hasDefault) {
                 targetPath?.removeLastPathElement()
