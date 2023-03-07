@@ -59,7 +59,7 @@ internal class PojoClassTypeConverter(
             targetPath?.appendPathElement(additionalPath)
             val fromType = it.from?.type?.resolve()
             val converter = convertersManager.findConverterForTypes(fromType, it.to.type.resolve(), targetPath)
-            if (converter == null && !it.to.hasDefault) throw IllegalStateException("Do not know how to convert from ${fromObjectName.type}/${fromType} to w${it.to.type.toTypeName()} with name ${it.to.name?.asString()} and path $targetPath") // No converter and no default value means fail
+            if (converter == null && !it.to.hasDefault) throw IllegalStateException("Do not know how to convert from ${fromObjectName.type}/${fromType} to w${it.to.type.toTypeName()} with name ${it.to.name?.asString()} and member of $to and path $targetPath") // No converter and no default value means fail
             // Skip generation for inconvertible value with default
             if (converter == null && it.to.hasDefault) {
                 targetPath?.removeLastPathElement()
