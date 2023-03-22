@@ -49,7 +49,7 @@ internal class CollectionTypeConverter(
         val resultTypeSpec = to.getCorrespondingConcreteTypeForSupportedCollectionType()
         beginControlFlow("run {")
         if (from.nullability == Nullability.NULLABLE) {
-            beginControlFlow("if·(%N·==·null) {", fromParameterSpec)
+            beginControlFlow("if·(%N·==·null)·{", fromParameterSpec)
             addStatement("return@run·null")
             endControlFlow()
         }

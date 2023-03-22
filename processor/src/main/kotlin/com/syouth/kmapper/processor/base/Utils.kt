@@ -41,7 +41,7 @@ internal fun KSFunctionDeclaration.getMappingInformation(): MapperInformation {
     val from = parameters[0].type.resolve()
     val to = returnType!!.resolve()
     if (from.declaration !is KSClassDeclaration || to.declaration !is KSClassDeclaration) throw IllegalStateException("Mapping should be from class to class.")
-    if (!from.isDataClass() || !to.isDataClass()) throw IllegalStateException("Mapping is only supported for data classes")
+
     return MapperInformation(
         mapperParams = parameters,
         to = to,
@@ -51,7 +51,8 @@ internal fun KSFunctionDeclaration.getMappingInformation(): MapperInformation {
 
 internal fun KSClassDeclaration.buildMappingTable(from: KSClassDeclaration): List<MappingProperties> {
     val result = mutableListOf<MappingProperties>()
-    val toProperties = primaryConstructor?.parameters ?: throw IllegalStateException("Data class should have primary constructor")
+    val toProperties = primaryConstructor?.parameters
+        ?: throw IllegalStateException("Class $classKind ${from.simpleName.asString()} should have primary constructor")
     val fromProperties = from.getAllProperties().filter { it.isPublic() }
     for (toProp in toProperties) {
         val fromProp = fromProperties.find { it.simpleName.asString() == toProp.name?.asString() }
