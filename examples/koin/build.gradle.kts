@@ -38,8 +38,8 @@ dependencies {
 //    implementation(project(":converters"))
 //    ksp(project(":processor"))
 
-    val koinVersion = "3.3.2"
-    val koinKspVersion = "1.1.0"
+    val koinVersion = "3.3.3"
+    val koinKspVersion = "1.1.1"
     implementation("io.insert-koin:koin-core:$koinVersion")
     implementation("io.insert-koin:koin-annotations:$koinKspVersion")
     ksp("io.insert-koin:koin-ksp-compiler:$koinKspVersion")
