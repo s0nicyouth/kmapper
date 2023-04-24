@@ -23,8 +23,9 @@ ksp {
     arg("koinInjectionType", "single")
 }
 
-sourceSets.main {
-    java.srcDirs("build/generated/ksp/main/kotlin")
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 dependencies {

@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm")
     kotlin("kapt")
     id("com.google.devtools.ksp")
-    id("com.squareup.anvil") version("2.4.3")
+    id("com.squareup.anvil") version("2.4.5")
 }
 
 repositories {
@@ -24,8 +24,9 @@ ksp {
     arg("anvilBindingScope", "com.syouth.kmapper.anvil.AppScope")
 }
 
-sourceSets.main {
-    java.srcDirs("build/generated/ksp/main/kotlin")
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 dependencies {
