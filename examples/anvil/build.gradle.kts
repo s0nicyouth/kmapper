@@ -10,6 +10,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 version = "1.0"
