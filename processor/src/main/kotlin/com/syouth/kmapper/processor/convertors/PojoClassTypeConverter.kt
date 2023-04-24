@@ -9,6 +9,7 @@ import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
+import com.syouth.kmapper.processor.base.Bundle
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.base.buildMappingTable
 import com.syouth.kmapper.processor.base.checkDifferentTypesNullabilitySufficient
@@ -17,9 +18,13 @@ import com.syouth.kmapper.processor.base.isSupportedCollectionType
 import com.syouth.kmapper.processor.base.isSupportedMapCollectionType
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
 import com.syouth.kmapper.processor.convertors.models.AssignableStatement
+import com.syouth.kmapper.processor.strategies.CheckCycleStrategy
+import com.syouth.kmapper.processor.strategies.VisitNodeStrategy
 
 internal class PojoClassTypeConverter(
-    private val convertersManager: ConvertersManager
+    private val convertersManager: ConvertersManager,
+    private val checkCycleStrategy: CheckCycleStrategy,
+    private val nodeVisitorStrategy: VisitNodeStrategy
 ) : TypeConvertor {
     override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean {
         if (from == null) return false
@@ -35,22 +40,29 @@ internal class PojoClassTypeConverter(
         fromParameterSpec: ParameterSpec?,
         from: KSType?,
         to: KSType,
-        targetPath: PathHolder?
-    ): AssignableStatement = AssignableStatement(
-        code = when {
-            fromParameterSpec == null || from == null -> throw IllegalStateException("From type or object name can't be null here")
-            from == to || from == to.makeNotNullable() -> buildCodeBlockForSameTypes(fromParameterSpec)
-            checkDifferentTypesNullabilitySufficient(from, to) -> buildCodeBlockForDifferentTypes(fromParameterSpec, from, to, targetPath)
-            else -> throw IllegalStateException("Can not map nullable to non nullable class")
-        },
-        requiresObjectToConvertFrom = true
-    )
+        targetPath: PathHolder?,
+        bundle: Bundle
+    ): AssignableStatement {
+        if (from == null) throw IllegalStateException("From can't be null here")
+        checkCycleStrategy(bundle, from)
+        return nodeVisitorStrategy.scoped(bundle, from) {
+            AssignableStatement(
+                code = when {
+                    fromParameterSpec == null -> throw IllegalStateException("From type or object name can't be null here")
+                    from == to || from == to.makeNotNullable() -> buildCodeBlockForSameTypes(fromParameterSpec)
+                    checkDifferentTypesNullabilitySufficient(from, to) -> buildCodeBlockForDifferentTypes(fromParameterSpec, from, to, targetPath, bundle)
+                    else -> throw IllegalStateException("Can not map nullable to non nullable class")
+                },
+                requiresObjectToConvertFrom = true
+            )
+        }
+    }
 
     private fun buildCodeBlockForSameTypes(fromObjectName: ParameterSpec): CodeBlock = buildCodeBlock {
         add("%N", fromObjectName)
     }
 
-    private fun buildCodeBlockForDifferentTypes(fromObjectName: ParameterSpec, from: KSType, to: KSType, targetPath: PathHolder?): CodeBlock = buildCodeBlock {
+    private fun buildCodeBlockForDifferentTypes(fromObjectName: ParameterSpec, from: KSType, to: KSType, targetPath: PathHolder?, bundle: Bundle): CodeBlock = buildCodeBlock {
         val mappingPropertiesWithDefaults = (to.declaration as KSClassDeclaration).buildMappingTable(from.declaration as KSClassDeclaration)
         val conversionStatementIndexToMappingProperty = mutableMapOf<Int, MappingProperties>()
         var statementIndex = 0
@@ -67,7 +79,13 @@ internal class PojoClassTypeConverter(
             }
             if (converter == null) throw IllegalStateException("Should not ever happen")
             val paramSpec = ParameterSpec.builder("it", fromType?.toTypeName() ?: Unit::class.asTypeName()).build()
-            val conversionStatement = converter.buildConversionStatement(paramSpec, fromType, it.to.type.resolve(), targetPath)
+            val conversionStatement = converter.buildConversionStatement(
+                paramSpec,
+                fromType,
+                it.to.type.resolve(),
+                targetPath,
+                bundle
+            )
             targetPath?.removeLastPathElement()
             conversionStatementIndexToMappingProperty[statementIndex++] = it
             conversionStatement

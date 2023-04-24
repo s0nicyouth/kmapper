@@ -4,6 +4,7 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.buildCodeBlock
+import com.syouth.kmapper.processor.base.Bundle
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
 import com.syouth.kmapper.processor.convertors.models.AssignableStatement
@@ -119,7 +120,8 @@ internal class UserDefinedPropertyConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("10")
@@ -128,7 +130,13 @@ internal class UserDefinedPropertyConverterTest {
             )
         }
         whenever(converterManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
-        val assignableStatement = converter.buildConversionStatement(null, null, mockKSType(qualifiedName = "com.syouth.test.type2"), targetPath)
+        val assignableStatement = converter.buildConversionStatement(
+            null,
+            null,
+            mockKSType(qualifiedName = "com.syouth.test.type2"),
+            targetPath,
+            Bundle()
+        )
         Assertions.assertFalse(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals("10\n", assignableStatement.code.toString())
     }
@@ -142,7 +150,8 @@ internal class UserDefinedPropertyConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -151,7 +160,13 @@ internal class UserDefinedPropertyConverterTest {
             )
         }
         whenever(converterManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
-        val assignableStatement = converter.buildConversionStatement(null, null, mockKSType(qualifiedName = "com.syouth.test.type2"), targetPath)
+        val assignableStatement = converter.buildConversionStatement(
+            null,
+            null,
+            mockKSType(qualifiedName = "com.syouth.test.type2"),
+            targetPath,
+            Bundle()
+        )
         Assertions.assertFalse(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals("source.path.let {\n  it\n}\n", assignableStatement.code.toString())
     }
@@ -166,7 +181,8 @@ internal class UserDefinedPropertyConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -175,7 +191,13 @@ internal class UserDefinedPropertyConverterTest {
             )
         }
         whenever(converterManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
-        val assignableStatement = converter.buildConversionStatement(null, null, mockKSType(qualifiedName = "com.syouth.test.type2"), targetPath)
+        val assignableStatement = converter.buildConversionStatement(
+            null,
+            null,
+            mockKSType(qualifiedName = "com.syouth.test.type2"),
+            targetPath,
+            Bundle()
+        )
         Assertions.assertFalse(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals("source.path.let {\n  it\n}\n", assignableStatement.code.toString())
     }

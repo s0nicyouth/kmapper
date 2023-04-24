@@ -5,9 +5,13 @@ import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.ksp.toTypeName
+import com.syouth.kmapper.processor.base.Bundle
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
 import com.syouth.kmapper.processor.convertors.models.AssignableStatement
+import com.syouth.kmapper.processor.strategies.CheckCycleStrategy
+import com.syouth.kmapper.processor.strategies.VisitNodeStrategy
+import com.syouth.kmapper.processor.testutils.createTestBundle
 import com.syouth.kmapper.processor.testutils.mockKSType
 import com.syouth.kmapper.processor.testutils.mockKSTypeArgument
 import org.junit.jupiter.api.Assertions
@@ -72,7 +76,9 @@ internal class MapCollectionConverterTest {
     private val unsupportedType: KSType = mockKSType()
     private val convertersManager: ConvertersManager = mock()
     private val converter = MapCollectionConverter(
-        convertersManager = convertersManager
+        convertersManager = convertersManager,
+        checkCycleStrategy = CheckCycleStrategy(),
+        nodeVisitorStrategy = VisitNodeStrategy()
     )
 
     @Test
@@ -108,7 +114,13 @@ internal class MapCollectionConverterTest {
     @Test
     fun `GIVEN same type THEN generated code is correct`() {
         val parameterSpec = ParameterSpec.builder("it", mapCollectionTypeFloatInt.toTypeName()).build()
-        val result = converter.buildConversionStatement(parameterSpec, mapCollectionTypeFloatInt, mapCollectionTypeFloatInt, PathHolder())
+        val result = converter.buildConversionStatement(
+            parameterSpec,
+            mapCollectionTypeFloatInt,
+            mapCollectionTypeFloatInt,
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(result.requiresObjectToConvertFrom)
         Assertions.assertEquals("it", result.code.toString())
     }
@@ -122,7 +134,8 @@ internal class MapCollectionConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -132,7 +145,13 @@ internal class MapCollectionConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val parameterSpec = ParameterSpec.builder("it", mapCollectionTypeFloatInt.toTypeName()).build()
-        val result = converter.buildConversionStatement(parameterSpec, mapCollectionTypeFloatInt, mapCollectionTypeFloatChar, PathHolder())
+        val result = converter.buildConversionStatement(
+            parameterSpec,
+            mapCollectionTypeFloatInt,
+            mapCollectionTypeFloatChar,
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(result.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -165,7 +184,8 @@ internal class MapCollectionConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -175,7 +195,13 @@ internal class MapCollectionConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val parameterSpec = ParameterSpec.builder("it", mapCollectionTypeFloatCharNullable.toTypeName()).build()
-        val result = converter.buildConversionStatement(parameterSpec, mapCollectionTypeFloatIntNullable, mapCollectionTypeFloatCharNullable, PathHolder())
+        val result = converter.buildConversionStatement(
+            parameterSpec,
+            mapCollectionTypeFloatIntNullable,
+            mapCollectionTypeFloatCharNullable,
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(result.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -211,7 +237,8 @@ internal class MapCollectionConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -221,7 +248,13 @@ internal class MapCollectionConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val parameterSpec = ParameterSpec.builder("it", mapCollectionTypeFloatIntNullableValueArgument.toTypeName()).build()
-        val result = converter.buildConversionStatement(parameterSpec, mapCollectionTypeFloatIntNullableValueArgument, mapCollectionTypeFloatCharNullableValueArgument, PathHolder())
+        val result = converter.buildConversionStatement(
+            parameterSpec,
+            mapCollectionTypeFloatIntNullableValueArgument,
+            mapCollectionTypeFloatCharNullableValueArgument,
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(result.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -258,7 +291,8 @@ internal class MapCollectionConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("someObject")
@@ -268,7 +302,13 @@ internal class MapCollectionConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val parameterSpec = ParameterSpec.builder("it", mapCollectionTypeFloatInt.toTypeName()).build()
-        val result = converter.buildConversionStatement(parameterSpec, mapCollectionTypeFloatInt, mapCollectionTypeFloatChar, PathHolder())
+        val result = converter.buildConversionStatement(
+            parameterSpec,
+            mapCollectionTypeFloatInt,
+            mapCollectionTypeFloatChar,
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(result.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """

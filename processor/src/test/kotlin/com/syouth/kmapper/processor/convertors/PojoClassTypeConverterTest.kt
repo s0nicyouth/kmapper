@@ -6,9 +6,13 @@ import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.ksp.toTypeName
+import com.syouth.kmapper.processor.base.Bundle
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
 import com.syouth.kmapper.processor.convertors.models.AssignableStatement
+import com.syouth.kmapper.processor.strategies.CheckCycleStrategy
+import com.syouth.kmapper.processor.strategies.VisitNodeStrategy
+import com.syouth.kmapper.processor.testutils.createTestBundle
 import com.syouth.kmapper.processor.testutils.mockKSProperty
 import com.syouth.kmapper.processor.testutils.mockKSType
 import com.syouth.kmapper.processor.testutils.mockKValueParameter
@@ -34,7 +38,7 @@ internal class PojoClassTypeConverterTest {
     private val convertersManager: ConvertersManager = mock {
 
     }
-    private val converter = PojoClassTypeConverter(convertersManager)
+    private val converter = PojoClassTypeConverter(convertersManager, CheckCycleStrategy(), VisitNodeStrategy())
 
     @Test
     fun `GIVEN from type is null THEN false is returned`() {
@@ -87,7 +91,13 @@ internal class PojoClassTypeConverterTest {
     @Test
     fun `GIVEN from type equals to to type THEN code generation is correct`() {
         val paramSpec = ParameterSpec.builder("it", mockKSType().toTypeName()).build()
-        val assignableStatement = converter.buildConversionStatement(paramSpec, fromDataType, fromDataType, PathHolder())
+        val assignableStatement = converter.buildConversionStatement(
+            paramSpec,
+            fromDataType,
+            fromDataType,
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals("it", assignableStatement.code.toString())
     }
@@ -95,7 +105,13 @@ internal class PojoClassTypeConverterTest {
     @Test
     fun `GIVEN from type equals to to nullable type THEN code generation is correct`() {
         val paramSpec = ParameterSpec.builder("it", mockKSType().toTypeName()).build()
-        val assignableStatement = converter.buildConversionStatement(paramSpec, fromDataType.makeNotNullable(), fromDataType.makeNullable(), PathHolder())
+        val assignableStatement = converter.buildConversionStatement(
+            paramSpec,
+            fromDataType.makeNotNullable(),
+            fromDataType.makeNullable(),
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals("it", assignableStatement.code.toString())
     }
@@ -109,7 +125,8 @@ internal class PojoClassTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -119,7 +136,7 @@ internal class PojoClassTypeConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val paramSpec = ParameterSpec.builder("it", mockKSType(modifiers = setOf(Modifier.DATA)).toTypeName()).build()
-        val assignableStatement = converter.buildConversionStatement(paramSpec, fromDataType, toDataType, PathHolder())
+        val assignableStatement = converter.buildConversionStatement(paramSpec, fromDataType, toDataType, PathHolder(), createTestBundle())
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -143,7 +160,8 @@ internal class PojoClassTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -153,7 +171,13 @@ internal class PojoClassTypeConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val paramSpec = ParameterSpec.builder("it", mockKSType(modifiers = setOf(Modifier.DATA)).toTypeName()).build()
-        val assignableStatement = converter.buildConversionStatement(paramSpec, fromDataType.makeNullable(), toDataType.makeNullable(), PathHolder())
+        val assignableStatement = converter.buildConversionStatement(
+            paramSpec,
+            fromDataType.makeNullable(),
+            toDataType.makeNullable(),
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -181,7 +205,8 @@ internal class PojoClassTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -192,7 +217,7 @@ internal class PojoClassTypeConverterTest {
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val paramSpec = ParameterSpec.builder("it", mockKSType(modifiers = setOf(Modifier.DATA)).toTypeName()).build()
         Assertions.assertThrows(IllegalStateException::class.java) {
-            converter.buildConversionStatement(paramSpec, fromDataType.makeNullable(), toDataType, PathHolder())
+            converter.buildConversionStatement(paramSpec, fromDataType.makeNullable(), toDataType, PathHolder(), createTestBundle())
         }
     }
 
@@ -205,7 +230,8 @@ internal class PojoClassTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -217,7 +243,13 @@ internal class PojoClassTypeConverterTest {
         whenever((toDataType.declaration as KSClassDeclaration).primaryConstructor!!.parameters).thenReturn(listOf(floatValueParam, floatValueParam))
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val paramSpec = ParameterSpec.builder("it", mockKSType(modifiers = setOf(Modifier.DATA)).toTypeName()).build()
-        val assignableStatement = converter.buildConversionStatement(paramSpec, fromDataType.makeNullable(), toDataType.makeNullable(), PathHolder())
+        val assignableStatement = converter.buildConversionStatement(
+            paramSpec,
+            fromDataType.makeNullable(),
+            toDataType.makeNullable(),
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -249,7 +281,8 @@ internal class PojoClassTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -259,7 +292,7 @@ internal class PojoClassTypeConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val paramSpec = ParameterSpec.builder("it", mockKSType(modifiers = setOf(Modifier.DATA)).toTypeName()).build()
-        val assignableStatement = converter.buildConversionStatement(paramSpec, fromDataType, toDataType, PathHolder())
+        val assignableStatement = converter.buildConversionStatement(paramSpec, fromDataType, toDataType, PathHolder(), createTestBundle())
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -281,7 +314,8 @@ internal class PojoClassTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -291,7 +325,7 @@ internal class PojoClassTypeConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val paramSpec = ParameterSpec.builder("it", mockKSType().toTypeName()).build()
-        val assignableStatement = converter.buildConversionStatement(paramSpec, fromPojoType, toPojoType, PathHolder())
+        val assignableStatement = converter.buildConversionStatement(paramSpec, fromPojoType, toPojoType, PathHolder(), createTestBundle())
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -315,7 +349,8 @@ internal class PojoClassTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -325,7 +360,13 @@ internal class PojoClassTypeConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val paramSpec = ParameterSpec.builder("it", mockKSType().toTypeName()).build()
-        val assignableStatement = converter.buildConversionStatement(paramSpec, fromPojoType.makeNullable(), toPojoType.makeNullable(), PathHolder())
+        val assignableStatement = converter.buildConversionStatement(
+            paramSpec,
+            fromPojoType.makeNullable(),
+            toPojoType.makeNullable(),
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -353,7 +394,8 @@ internal class PojoClassTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -364,7 +406,7 @@ internal class PojoClassTypeConverterTest {
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val paramSpec = ParameterSpec.builder("it", mockKSType().toTypeName()).build()
         Assertions.assertThrows(IllegalStateException::class.java) {
-            converter.buildConversionStatement(paramSpec, fromPojoType.makeNullable(), toPojoType, PathHolder())
+            converter.buildConversionStatement(paramSpec, fromPojoType.makeNullable(), toPojoType, PathHolder(), Bundle())
         }
     }
 
@@ -377,7 +419,8 @@ internal class PojoClassTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -389,7 +432,13 @@ internal class PojoClassTypeConverterTest {
         whenever((toPojoType.declaration as KSClassDeclaration).primaryConstructor!!.parameters).thenReturn(listOf(floatValueParam, floatValueParam))
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val paramSpec = ParameterSpec.builder("it", mockKSType().toTypeName()).build()
-        val assignableStatement = converter.buildConversionStatement(paramSpec, fromPojoType.makeNullable(), toPojoType.makeNullable(), PathHolder())
+        val assignableStatement = converter.buildConversionStatement(
+            paramSpec,
+            fromPojoType.makeNullable(),
+            toPojoType.makeNullable(),
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -421,7 +470,8 @@ internal class PojoClassTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -431,7 +481,7 @@ internal class PojoClassTypeConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val paramSpec = ParameterSpec.builder("it", mockKSType().toTypeName()).build()
-        val assignableStatement = converter.buildConversionStatement(paramSpec, fromPojoType, toPojoType, PathHolder())
+        val assignableStatement = converter.buildConversionStatement(paramSpec, fromPojoType, toPojoType, PathHolder(), createTestBundle())
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """

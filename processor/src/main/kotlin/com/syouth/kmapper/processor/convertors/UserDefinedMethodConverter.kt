@@ -5,9 +5,11 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ksp.toTypeName
+import com.syouth.kmapper.processor.base.Bundle
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.base.checkSameTypeWithNullabilitySufficient
 import com.syouth.kmapper.processor.convertors.models.AssignableStatement
+import com.syouth.kmapper.processor.strategies.CheckCycleStrategy
 
 internal class UserDefinedMethodConverter(
     private val from: KSType,
@@ -31,7 +33,8 @@ internal class UserDefinedMethodConverter(
         fromParameterSpec: ParameterSpec?,
         from: KSType?,
         to: KSType,
-        targetPath: PathHolder?
+        targetPath: PathHolder?,
+        bundle: Bundle
     ): AssignableStatement = AssignableStatement(
         code = buildCodeBlock {
             if (fromParameterSpec == null) throw IllegalStateException("From object name can't be null here")
