@@ -10,6 +10,8 @@ import com.syouth.kmapper.processor.base.*
 import com.syouth.kmapper.processor.base.data.MapperInformation
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
 import com.syouth.kmapper.processor.injectors.providerInjector
+import com.syouth.kmapper.processor.strategies.Constatnts
+import com.syouth.kmapper.processor.strategies.VisitNodeStrategy
 import com.syouth.kmapper.processor_annotations.Mapper
 
 internal class MapperClassProcessorImpl constructor(
@@ -56,15 +58,20 @@ internal class MapperClassProcessorImpl constructor(
     private fun processMapper(mapperInfo: MapperInformation, builder: TypeSpec.Builder) {
         convertersManager.initializeForMapperFunction(mapperInfo.func)
         val pathHolder = PathHolder()
+        val from = mapperInfo.from.type.resolve()
         val converter =
-            convertersManager.findConverterForTypes(mapperInfo.from.type.resolve(), mapperInfo.to, pathHolder)
+            convertersManager.findConverterForTypes(from, mapperInfo.to, pathHolder)
                 ?: throw IllegalStateException("Don't know how to map ${mapperInfo.from.name?.asString()} to ${mapperInfo.to.toClassName()}")
         val fromParameterSpec = ParameterSpec.builder(mapperInfo.from.name!!.asString(), mapperInfo.from.type.toTypeName()).build()
+        val bundle = Bundle().apply {
+            this[Constatnts.VISITED_NODES_LIST] = mutableListOf<String>()
+        }
         val converterBlock = converter.buildConversionStatement(
             fromParameterSpec,
-            mapperInfo.from.type.resolve(),
+            from,
             mapperInfo.to,
-            pathHolder
+            pathHolder,
+            bundle
         )
         val funSpecBuilder = FunSpec
             .builder(mapperInfo.func.simpleName.asString())

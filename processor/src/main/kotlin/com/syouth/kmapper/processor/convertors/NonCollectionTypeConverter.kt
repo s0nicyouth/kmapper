@@ -24,7 +24,8 @@ internal class NonCollectionTypeConverter : TypeConvertor {
         fromParameterSpec: ParameterSpec?,
         from: KSType?,
         to: KSType,
-        targetPath: PathHolder?
+        targetPath: PathHolder?,
+        bundle: Bundle
     ): AssignableStatement = AssignableStatement(
             code = buildCodeBlock {
                 check(fromParameterSpec != null) { "from object name can't be null here" }

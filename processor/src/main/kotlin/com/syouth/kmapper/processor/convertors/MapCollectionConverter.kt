@@ -15,9 +15,13 @@ import com.syouth.kmapper.processor.base.checkMapCollectionTypeKeyArgumentsNulla
 import com.syouth.kmapper.processor.base.isSupportedMapCollectionType
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
 import com.syouth.kmapper.processor.convertors.models.AssignableStatement
+import com.syouth.kmapper.processor.strategies.CheckCycleStrategy
+import com.syouth.kmapper.processor.strategies.VisitNodeStrategy
 
 internal class MapCollectionConverter(
-    private val convertersManager: ConvertersManager
+    private val convertersManager: ConvertersManager,
+    private val checkCycleStrategy: CheckCycleStrategy,
+    private val nodeVisitorStrategy: VisitNodeStrategy
 ) : TypeConvertor {
 
     override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean {
@@ -33,24 +37,33 @@ internal class MapCollectionConverter(
         fromParameterSpec: ParameterSpec?,
         from: KSType?,
         to: KSType,
-        targetPath: PathHolder?
+        targetPath: PathHolder?,
+        bundle: Bundle
     ): AssignableStatement {
         if (from == null || fromParameterSpec == null) throw IllegalStateException("from type or from object name can't be null here")
-        return AssignableStatement(
-            code = when {
-                areSameSupportedMapCollectionTypes(from, to) -> buildCodeBlockForSameTypes(fromParameterSpec)
-                from.isSupportedMapCollectionType() && to.isSupportedMapCollectionType() -> buildCodeBlockForDataClasses(fromParameterSpec, from, to)
-                else -> throw IllegalStateException("One of or both data types not supported: ${from.declaration.simpleName} ${to.declaration.simpleName}")
-            },
-            requiresObjectToConvertFrom = true
-        )
+        checkCycleStrategy(bundle, from)
+        return nodeVisitorStrategy.scoped(bundle, from) {
+            AssignableStatement(
+                code = when {
+                    areSameSupportedMapCollectionTypes(from, to) -> buildCodeBlockForSameTypes(fromParameterSpec)
+                    from.isSupportedMapCollectionType() && to.isSupportedMapCollectionType() -> buildCodeBlockForDataClasses(
+                        fromParameterSpec,
+                        from,
+                        to,
+                        bundle
+                    )
+                    else -> throw IllegalStateException("One of or both data types not supported: ${from.declaration.simpleName} ${to.declaration.simpleName}")
+                },
+                requiresObjectToConvertFrom = true
+            )
+        }
     }
 
     private fun buildCodeBlockForSameTypes(fromParameterSpec: ParameterSpec): CodeBlock = buildCodeBlock {
         add("%N", fromParameterSpec)
     }
 
-    private fun buildCodeBlockForDataClasses(fromParameterSpec: ParameterSpec, from: KSType, to: KSType): CodeBlock = buildCodeBlock {
+    private fun buildCodeBlockForDataClasses(fromParameterSpec: ParameterSpec, from: KSType, to: KSType, bundle: Bundle): CodeBlock = buildCodeBlock {
         val fromMapCollectionArgumentType = from.extractSupportedMapCollectionTypeArgument()
         val toMapCollectionArgumentType = to.extractSupportedMapCollectionTypeArgument()
         val resultTypeSpec = to.getCorrespondingConcreteTypeForSupportedCollectionType()
@@ -81,14 +94,16 @@ internal class MapCollectionConverter(
                 keyObjParameterSpec,
                 fromMapCollectionKeyTypeArgument,
                 toMapCollectionKeyTypeArgument,
-                null
+                null,
+                bundle
             )
             val valueObjParameterSpec = ParameterSpec.builder("it", nonNullableFromMapCollectionArgumentType.toClassName()).build()
             val valueConversionStatement = valueConvertor.buildConversionStatement(
                 valueObjParameterSpec,
                 nonNullableFromMapCollectionArgumentType,
                 toMapCollectionArgumentType,
-                null
+                null,
+                bundle
             )
             addStatement("val·(k,·v)·=·entry")
             if (keyConversionStatement.requiresObjectToConvertFrom) {

@@ -2,6 +2,7 @@ package com.syouth.kmapper.processor.convertors
 
 import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.ParameterSpec
+import com.syouth.kmapper.processor.base.Bundle
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.base.data.SUPPORTED_CONVERSION_INTERFACES
 import org.junit.jupiter.api.Assertions
@@ -74,7 +75,8 @@ internal class NonCollectionTypeConverterTest {
                 null,
                 mock(),
                 mock(),
-                PathHolder()
+                PathHolder(),
+                Bundle()
             )
         }
     }
@@ -82,7 +84,7 @@ internal class NonCollectionTypeConverterTest {
     @Test
     fun `GIVEN parameters are correct THEN generated code is correct`() {
         val parameterSpec = ParameterSpec.builder("it", Int::class).build()
-        val assignableStatement = converter.buildConversionStatement(parameterSpec, mock(), mock(), PathHolder())
+        val assignableStatement = converter.buildConversionStatement(parameterSpec, mock(), mock(), PathHolder(), Bundle())
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals("it", assignableStatement.code.toString())
     }

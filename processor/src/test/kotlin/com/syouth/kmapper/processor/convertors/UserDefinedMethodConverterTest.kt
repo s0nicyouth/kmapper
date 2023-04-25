@@ -4,6 +4,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.ParameterSpec
+import com.syouth.kmapper.processor.base.Bundle
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.testutils.mockKSFunctionDeclaration
 import com.syouth.kmapper.processor.testutils.mockKSType
@@ -36,14 +37,14 @@ internal class UserDefinedMethodConverterTest {
     @Test
     fun `GIVEN fromParameterSpec is null THEN exception is thrown`() {
         Assertions.assertThrows(IllegalStateException::class.java) {
-            converter.buildConversionStatement(null, from, to, PathHolder())
+            converter.buildConversionStatement(null, from, to, PathHolder(), Bundle())
         }
     }
 
     @Test
     fun `GIVEN all parameters are correct then generated code is correct`() {
         val parameterSpec = ParameterSpec.builder("it", Int::class.java).build()
-        val assignableStatement = converter.buildConversionStatement(parameterSpec, from, to, PathHolder())
+        val assignableStatement = converter.buildConversionStatement(parameterSpec, from, to, PathHolder(), Bundle())
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals("map(it)", assignableStatement.code.toString())
     }
@@ -91,7 +92,13 @@ internal class UserDefinedMethodConverterTest {
         val function: KSFunctionDeclaration = mockKSFunctionDeclaration()
         val converter = UserDefinedMethodConverter(from, to, function)
         val parameterSpec = ParameterSpec.builder("it", Int::class.java).build()
-        val assignableStatement = converter.buildConversionStatement(parameterSpec, from, to.makeNotNullable(), PathHolder())
+        val assignableStatement = converter.buildConversionStatement(
+            parameterSpec,
+            from,
+            to.makeNotNullable(),
+            PathHolder(),
+            Bundle()
+        )
         Assertions.assertTrue(assignableStatement.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """

@@ -5,9 +5,13 @@ import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.ksp.toTypeName
+import com.syouth.kmapper.processor.base.Bundle
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
 import com.syouth.kmapper.processor.convertors.models.AssignableStatement
+import com.syouth.kmapper.processor.strategies.CheckCycleStrategy
+import com.syouth.kmapper.processor.strategies.VisitNodeStrategy
+import com.syouth.kmapper.processor.testutils.createTestBundle
 import com.syouth.kmapper.processor.testutils.mockKSType
 import com.syouth.kmapper.processor.testutils.mockKSTypeArgument
 import org.junit.jupiter.api.Assertions
@@ -41,7 +45,7 @@ internal class CollectionTypeConverterTest {
     private val convertersManager: ConvertersManager = mock {
         Int
     }
-    private val convertor = CollectionTypeConverter(convertersManager)
+    private val convertor = CollectionTypeConverter(convertersManager, CheckCycleStrategy(), VisitNodeStrategy())
 
     @Test
     fun `GIVEN from is null THEN false is returned`() {
@@ -101,7 +105,13 @@ internal class CollectionTypeConverterTest {
     @Test
     fun `GIVEN same argument types THEN generated code is correct`() {
         val parameterSpec = ParameterSpec.builder("it", firstCollectionTypeFloat.toTypeName()).build()
-        val result = convertor.buildConversionStatement(parameterSpec, firstCollectionTypeFloat, firstCollectionTypeFloat, PathHolder())
+        val result = convertor.buildConversionStatement(
+            parameterSpec,
+            firstCollectionTypeFloat,
+            firstCollectionTypeFloat,
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(result.requiresObjectToConvertFrom)
         Assertions.assertEquals("it", result.code.toString())
     }
@@ -115,7 +125,8 @@ internal class CollectionTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -125,7 +136,13 @@ internal class CollectionTypeConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val parameterSpec = ParameterSpec.builder("it", firstCollectionTypeFloat.toTypeName()).build()
-        val result = convertor.buildConversionStatement(parameterSpec, firstCollectionTypeFloat.makeNullable(), secondCollectionTypeInt.makeNullable(), PathHolder())
+        val result = convertor.buildConversionStatement(
+            parameterSpec,
+            firstCollectionTypeFloat.makeNullable(),
+            secondCollectionTypeInt.makeNullable(),
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(result.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -157,7 +174,8 @@ internal class CollectionTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("it")
@@ -167,7 +185,13 @@ internal class CollectionTypeConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val parameterSpec = ParameterSpec.builder("it", firstCollectionTypeFloat.toTypeName()).build()
-        val result = convertor.buildConversionStatement(parameterSpec, firstCollectionTypeFloatNullable, secondCollectionTypeIntNullable, PathHolder())
+        val result = convertor.buildConversionStatement(
+            parameterSpec,
+            firstCollectionTypeFloatNullable,
+            secondCollectionTypeIntNullable,
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(result.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -200,7 +224,8 @@ internal class CollectionTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("someObject")
@@ -210,7 +235,13 @@ internal class CollectionTypeConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val parameterSpec = ParameterSpec.builder("it", firstCollectionTypeFloat.toTypeName()).build()
-        val result = convertor.buildConversionStatement(parameterSpec, firstCollectionTypeFloat, secondCollectionTypeInt, PathHolder())
+        val result = convertor.buildConversionStatement(
+            parameterSpec,
+            firstCollectionTypeFloat,
+            secondCollectionTypeInt,
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(result.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """
@@ -237,7 +268,8 @@ internal class CollectionTypeConverterTest {
                 fromParameterSpec: ParameterSpec?,
                 from: KSType?,
                 to: KSType,
-                targetPath: PathHolder?
+                targetPath: PathHolder?,
+                bundle: Bundle
             ): AssignableStatement = AssignableStatement(
                 code = buildCodeBlock {
                     add("someObject")
@@ -247,7 +279,13 @@ internal class CollectionTypeConverterTest {
         }
         whenever(convertersManager.findConverterForTypes(anyOrNull(), any(), anyOrNull())).thenReturn(internalConverter)
         val parameterSpec = ParameterSpec.builder("it", firstCollectionTypeFloat.toTypeName()).build()
-        val result = convertor.buildConversionStatement(parameterSpec, firstCollectionTypeFloat, secondCollectionTypeInt, PathHolder())
+        val result = convertor.buildConversionStatement(
+            parameterSpec,
+            firstCollectionTypeFloat,
+            secondCollectionTypeInt,
+            PathHolder(),
+            createTestBundle()
+        )
         Assertions.assertTrue(result.requiresObjectToConvertFrom)
         Assertions.assertEquals(
             """

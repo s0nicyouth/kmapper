@@ -5,10 +5,12 @@ import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.ksp.toTypeName
+import com.syouth.kmapper.processor.base.Bundle
 import com.syouth.kmapper.processor.base.PathHolder
 import com.syouth.kmapper.processor.base.checkDifferentTypesNullabilitySufficient
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
 import com.syouth.kmapper.processor.convertors.models.AssignableStatement
+import com.syouth.kmapper.processor.strategies.CheckCycleStrategy
 
 internal class UserDefinedPropertyConverter(
     private val convertersManager: ConvertersManager,
@@ -25,12 +27,13 @@ internal class UserDefinedPropertyConverter(
         fromParameterSpec: ParameterSpec?,
         from: KSType?,
         to: KSType,
-        targetPath: PathHolder?
+        targetPath: PathHolder?,
+        bundle: Bundle
     ): AssignableStatement {
         val sourceFinalType = sourcePath.getLastElementFinalType()
         val converter = convertersManager.findConverterForTypes(sourceFinalType, to, null) ?: throw IllegalStateException("Can't find converter for $targetPath")
         val parameterSpec = ParameterSpec.builder("it", sourceFinalType.toTypeName()).build()
-        val conversionStatement = converter.buildConversionStatement(parameterSpec, sourceFinalType, to, targetPath)
+        val conversionStatement = converter.buildConversionStatement(parameterSpec, sourceFinalType, to, targetPath, bundle)
         return AssignableStatement(
             code = buildCodeBlock {
                 if (conversionStatement.requiresObjectToConvertFrom) {

@@ -10,9 +10,13 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 import com.syouth.kmapper.processor.base.*
 import com.syouth.kmapper.processor.convertors.manager.ConvertersManager
 import com.syouth.kmapper.processor.convertors.models.AssignableStatement
+import com.syouth.kmapper.processor.strategies.CheckCycleStrategy
+import com.syouth.kmapper.processor.strategies.VisitNodeStrategy
 
 internal class CollectionTypeConverter(
-    private val convertersManager: ConvertersManager
+    private val convertersManager: ConvertersManager,
+    private val checkCycleStrategy: CheckCycleStrategy,
+    private val nodeVisitorStrategy: VisitNodeStrategy
 ) : TypeConvertor {
 
     override fun isSupported(from: KSType?, to: KSType, targetPath: PathHolder?): Boolean {
@@ -26,24 +30,34 @@ internal class CollectionTypeConverter(
         fromParameterSpec: ParameterSpec?,
         from: KSType?,
         to: KSType,
-        targetPath: PathHolder?
+        targetPath: PathHolder?,
+        bundle: Bundle
     ): AssignableStatement {
         if (from == null || fromParameterSpec == null) throw IllegalStateException("from type or from object name can't be null here")
-        return AssignableStatement(
-            code = when {
-                areSameSupportedCollectionTypes(from, to) -> buildCodeBlockForSameTypes(fromParameterSpec)
-                from.isSupportedCollectionType() && to.isSupportedCollectionType() -> buildCodeBlockForDataClasses(fromParameterSpec, from, to)
-                else -> throw IllegalStateException("One of or both data types not supported: ${from.declaration.simpleName} ${to.declaration.simpleName}")
-            },
-            requiresObjectToConvertFrom = true
-        )
+        checkCycleStrategy(bundle, from)
+        return nodeVisitorStrategy.scoped(bundle, from) {
+            AssignableStatement(
+                code = when {
+                    areSameSupportedCollectionTypes(from, to) -> buildCodeBlockForSameTypes(fromParameterSpec)
+                    from.isSupportedCollectionType() && to.isSupportedCollectionType() -> buildCodeBlockForDataClasses(
+                        fromParameterSpec,
+                        from,
+                        to,
+                        bundle
+                    )
+
+                    else -> throw IllegalStateException("One of or both data types not supported: ${from.declaration.simpleName} ${to.declaration.simpleName}")
+                },
+                requiresObjectToConvertFrom = true
+            )
+        }
     }
 
     private fun buildCodeBlockForSameTypes(fromParameterSpec: ParameterSpec): CodeBlock = buildCodeBlock {
         add("%N", fromParameterSpec)
     }
 
-    private fun buildCodeBlockForDataClasses(fromParameterSpec: ParameterSpec, from: KSType, to: KSType): CodeBlock = buildCodeBlock {
+    private fun buildCodeBlockForDataClasses(fromParameterSpec: ParameterSpec, from: KSType, to: KSType, bundle: Bundle): CodeBlock = buildCodeBlock {
         val fromCollectionArgumentType = from.extractSupportedCollectionTypeArgumentType()
         val toCollectionArgumentType = to.extractSupportedCollectionTypeArgumentType()
         val resultTypeSpec = to.getCorrespondingConcreteTypeForSupportedCollectionType()
@@ -67,7 +81,8 @@ internal class CollectionTypeConverter(
                 objParameterSpec,
                 nonNullFromCollectionArgumentType,
                 toCollectionArgumentType,
-                null
+                null,
+                bundle
             )
             if (fromCollectionArgumentType.nullability == Nullability.NULLABLE) {
                 beginControlFlow("if·(obj·==·null)·{")
