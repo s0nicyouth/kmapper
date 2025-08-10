@@ -96,3 +96,45 @@ internal fun KSType.extractSupportedMapCollectionTypeArgument(): KSType =
 
 internal fun KSType.extractSupportedMapCollectionKeyTypeArgument(): KSType =
     arguments.firstOrNull()?.type?.resolve() ?: throw IllegalStateException("Can't find map collection type argument for ${this.toClassName().simpleName}")
+
+internal fun KSType.findOptInAnnotations(): List<KSAnnotation> {
+    val declaration = this.declaration as? KSClassDeclaration ?: return emptyList()
+    return declaration.annotations.filter {
+        it.annotationType.resolve()
+            .declaration.annotations.any { meta ->
+                meta.annotationType.resolve().declaration.qualifiedName?.asString() == "kotlin.RequiresOptIn"
+            }
+    }.toList()
+}
+
+internal fun KSType.collectRequiredOptIns(): List<ClassName> {
+    return findOptInAnnotations().mapNotNull {
+        val annotationType = it.annotationType.resolve()
+        annotationType.declaration.qualifiedName?.asString()?.let { fqName ->
+            ClassName.bestGuess(fqName)
+        }
+    }
+}
+
+internal fun KSType.collectRequiredOptInsDeep(): Set<ClassName> {
+    val visited = mutableSetOf<KSType>()
+    val result = mutableSetOf<ClassName>()
+
+    fun recurse(type: KSType) {
+        if (!visited.add(type)) return
+
+        // Сначала аннотации самого типа
+        result += type.collectRequiredOptIns()
+
+        val decl = type.declaration as? KSClassDeclaration ?: return
+
+        // Рекурсивно пройтись по свойствам
+        decl.getAllProperties().forEach { property ->
+            val propType = property.type.resolve()
+            recurse(propType)
+        }
+    }
+
+    recurse(this)
+    return result
+}

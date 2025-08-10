@@ -1,6 +1,7 @@
 package com.syouth.kmapper.processor.processors.mapper_processor
 
 import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.*
@@ -30,6 +31,22 @@ internal class MapperClassProcessorImpl constructor(
                 .classBuilder("${type.simpleName.asString()}Impl")
                 .addModifiers(injector.classModifier)
                 .addSuperinterface(type.toClassName())
+
+
+        val optIns = mappersToImplement
+            .flatMap {
+                it.from.type.resolve().collectRequiredOptInsDeep() +
+                        it.to.collectRequiredOptInsDeep()
+            }
+            .distinct()
+
+        optIns.forEach { optIn ->
+            implementationBuilder.addAnnotation(
+                AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
+                    .addMember("%T::class", optIn)
+                    .build()
+            )
+        }
 
         injector.processClassSpec(implementationBuilder)
 
@@ -62,7 +79,8 @@ internal class MapperClassProcessorImpl constructor(
         val converter =
             convertersManager.findConverterForTypes(from, mapperInfo.to, pathHolder)
                 ?: throw IllegalStateException("Don't know how to map ${mapperInfo.from.name?.asString()} to ${mapperInfo.to.toClassName()}")
-        val fromParameterSpec = ParameterSpec.builder(mapperInfo.from.name!!.asString(), mapperInfo.from.type.toTypeName()).build()
+        val fromParameterSpec =
+            ParameterSpec.builder(mapperInfo.from.name!!.asString(), mapperInfo.from.type.toTypeName()).build()
         val bundle = Bundle().apply {
             this[Constatnts.VISITED_NODES_LIST] = mutableListOf<String>()
         }
@@ -77,7 +95,9 @@ internal class MapperClassProcessorImpl constructor(
             .builder(mapperInfo.func.simpleName.asString())
             .returns(mapperInfo.to.toClassName())
             .addParameter(fromParameterSpec)
-            .addParameters(mapperInfo.mapperParams.subList(1, mapperInfo.mapperParams.size).map { ParameterSpec.builder(it.name!!.asString(), it.type.toTypeName()).build() })
+            .addParameters(
+                mapperInfo.mapperParams.subList(1, mapperInfo.mapperParams.size)
+                    .map { ParameterSpec.builder(it.name!!.asString(), it.type.toTypeName()).build() })
             .addModifiers(KModifier.OVERRIDE)
             .addCode("return %L", converterBlock.code)
         builder
