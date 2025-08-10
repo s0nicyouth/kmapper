@@ -6,7 +6,7 @@ import javax.inject.Singleton
 import kotlin.random.Random
 
 
-fun main(args : Array<String>) {
+fun main(args: Array<String>) {
     val appComponent = DaggerAppComponent.create()
     val mapper = appComponent.getTestMapper()
 
@@ -19,7 +19,7 @@ data class TestDto(val testField: Int)
 data class TestDomain(val testField: Int)
 
 @Mapper
-interface TestMapper{
+interface TestMapper {
     fun toDto(testDomain: TestDomain): TestDto
 }
 
@@ -27,6 +27,6 @@ abstract class AppScope private constructor()
 
 @Singleton
 @MergeComponent(AppScope::class)
-interface AppComponent{
+interface AppComponent {
     fun getTestMapper(): TestMapper
 }
