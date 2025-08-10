@@ -1,5 +1,5 @@
-val kspVersion: String by project
-val kMapperVersion: String by project
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     kotlin("jvm")
@@ -9,10 +9,12 @@ plugins {
 }
 
 group = "io.github.s0nicyouth"
-version = kMapperVersion
+version = libs.versions.kMapperVersion.get()
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "1.8"
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
+    }
 }
 
 java {
@@ -33,9 +35,10 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("com.squareup:kotlinpoet:1.12.0")
     implementation("com.squareup:kotlinpoet-ksp:1.12.0")
-    implementation("com.google.devtools.ksp:symbol-processing-api:$kspVersion")
+    implementation(libs.ksp.api)
 
-    implementation("io.github.s0nicyouth:processor_annotations:$version")
+    //implementation("io.github.s0nicyouth:processor_annotations:$version")
+    implementation(projects.processorAnnotations)
 
     testImplementation(platform("org.junit:junit-bom:5.9.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
