@@ -1,9 +1,7 @@
-val kMapperVersion: String by project
-
 plugins {
     application
     kotlin("jvm")
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.ksp)
 }
 
 repositories {
@@ -24,25 +22,19 @@ ksp {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 dependencies {
     implementation(kotlin("stdlib"))
 
-    implementation("io.github.s0nicyouth:processor_annotations:$kMapperVersion")
-    implementation("io.github.s0nicyouth:converters:$kMapperVersion")
-    ksp("io.github.s0nicyouth:processor:$kMapperVersion")
+    implementation(projects.processorAnnotations)
+    implementation(projects.converters)
+    ksp(projects.processor)
 
-    // uncomment this if you want to work on processor and example project at once (no need to redeploy the project after every processor change)
-//    implementation(project(":processor_annotations"))
-//    implementation(project(":converters"))
-//    ksp(project(":processor"))
+    implementation(libs.koin.core)
+    implementation(libs.koin.annotations)
+    ksp(libs.koin.ksp.compiler)
 
-    val koinVersion = "3.3.3"
-    val koinKspVersion = "1.1.1"
-    implementation("io.insert-koin:koin-core:$koinVersion")
-    implementation("io.insert-koin:koin-annotations:$koinKspVersion")
-    ksp("io.insert-koin:koin-ksp-compiler:$koinKspVersion")
 }
