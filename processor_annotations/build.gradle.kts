@@ -13,7 +13,7 @@ version = libs.versions.kMapperVersion.get()
 
 tasks.withType<KotlinJvmCompile>().configureEach {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_1_8)
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
 
@@ -65,8 +65,8 @@ val javadocJar by tasks.registering(Jar::class) {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "io.github.s0nicyouth"
-            artifactId = "processor_annotations"
+            groupId = groupId
+            artifactId = project.name
             version = version
 
             artifact(tasks["sourcesJar"])
