@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.kotlinpoet.ksp)
     implementation(libs.ksp.api)
 
+    //TODO: uncomment
     //implementation("io.github.s0nicyouth:processor_annotations:$version")
     implementation(projects.processorAnnotations)
 
