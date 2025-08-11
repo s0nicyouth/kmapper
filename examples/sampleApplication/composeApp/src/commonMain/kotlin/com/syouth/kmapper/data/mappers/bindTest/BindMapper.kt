@@ -18,7 +18,6 @@ internal interface BindMapper : CommonMapper<BindDto, BindDomain> {
 
     override fun map(input: BindDto): BindDomain {
         throw IllegalStateException(
-            "This dto - ${input::class.simpleName} " +
                     "This dto - ${input::class.simpleName} " +
                     "does not supported now"
         )
