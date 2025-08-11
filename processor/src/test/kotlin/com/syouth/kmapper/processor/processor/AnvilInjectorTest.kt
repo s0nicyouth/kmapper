@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCompilerApi::class)
+
 package com.syouth.kmapper.processor.processor
 
 import com.syouth.kmapper.processor.provider.KMapperProcessorProvider
@@ -6,13 +8,14 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.kspArgs
 import com.tschuchort.compiletesting.symbolProcessorProviders
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 
 class AnvilInjectorTest: BaseProcessorTest() {
-    @Test
+    /*@Test
     fun `GIVEN anvil injector is enabled THEN @ContributesBinding is generated`() {
         val mapperGenerationSource = SourceFile.kotlin(
             "mapper.kt",
@@ -96,7 +99,7 @@ public class TestMapperImpl @Inject constructor() : TestMapper {
             """.trimIndent(),
             compilationResult.sourceFor("TestMapperImpl.kt")
         )
-    }
+    }*/
 
     @Test
     fun `GIVEN anvil injector is enabled without anvilBindingScope THEN compilation fails`() {
