@@ -31,7 +31,8 @@ internal interface ExampleCommonMapper : ExampleMapperSupport,
     fun map(v: Double): Double = v / 2.5
 
     override fun map(input: ExampleDto): ExampleDomain {
-        throw IllegalStateException("does not supported now")
+        throw IllegalStateException("This dto - ${input::class.simpleName} " +
+                    "does not supported now")
     }
 }
 

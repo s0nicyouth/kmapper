@@ -23,7 +23,7 @@ internal class MockNetworkApiImpl(
             delay(Random.nextLong(1000, 10000))
 
             if (Random.nextInt(0, 100) < 30) {
-                throw IllegalStateException("Something went wrong")
+                throw IllegalStateException("Something went wrong with network request")
             }
             emit(mockDataHolder.getDtoCreatorByType(dataType))
         }
