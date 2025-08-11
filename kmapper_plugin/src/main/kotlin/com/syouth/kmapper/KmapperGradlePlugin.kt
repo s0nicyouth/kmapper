@@ -13,7 +13,6 @@ class KmapperGradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         with(project) {
 
-
             plugins.findPlugin("com.google.devtools.ksp") ?: error(
                 "KSP plugin not found" +
                         " or specified later in the plugins block"

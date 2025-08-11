@@ -11,7 +11,7 @@ plugins {
 
 
 group = "io.github.s0nicyouth"
-version = libs.versions.kMapperVersion.get()
+version = libs.versions.kMapperGradlePluginVersion.get()
 
 repositories {
     gradlePluginPortal()
