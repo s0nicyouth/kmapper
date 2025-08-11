@@ -11,8 +11,6 @@ repositories {
     mavenLocal()
 }
 
-version = "1.0"
-
 application {
     mainClass.set("com.syouth.kmapper.anvil.Main")
 }
@@ -20,11 +18,6 @@ application {
 ksp {
     arg("injector", "anvil")
     arg("anvilBindingScope", "com.syouth.kmapper.anvil.AppScope")
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
 }
 
 dependencies {

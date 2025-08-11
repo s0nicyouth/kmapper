@@ -10,8 +10,6 @@ repositories {
     maven { url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/") }
 }
 
-version = "1.0"
-
 application {
     mainClass.set("com.syouth.kmapper.koin.Main")
 }
@@ -19,11 +17,6 @@ application {
 ksp {
     arg("injector", "koin")
     arg("koinInjectionType", "single")
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
 }
 
 dependencies {
