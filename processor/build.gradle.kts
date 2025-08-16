@@ -1,5 +1,5 @@
-val kspVersion: String by project
-val kMapperVersion: String by project
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     kotlin("jvm")
@@ -9,15 +9,17 @@ plugins {
 }
 
 group = "io.github.s0nicyouth"
-version = kMapperVersion
+version = libs.versions.kMapperVersion.get()
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "1.8"
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
+    }
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
     withSourcesJar()
     withJavadocJar()
 }
@@ -30,18 +32,21 @@ tasks.test {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
-    implementation("com.squareup:kotlinpoet:1.12.0")
-    implementation("com.squareup:kotlinpoet-ksp:1.12.0")
-    implementation("com.google.devtools.ksp:symbol-processing-api:$kspVersion")
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinpoet)
+    implementation(libs.kotlinpoet.ksp)
+    implementation(libs.ksp.api)
 
-    implementation("io.github.s0nicyouth:processor_annotations:$version")
+    //TODO: uncomment
+    //implementation("io.github.s0nicyouth:processor_annotations:$version")
+    implementation(projects.processorAnnotations)
 
-    testImplementation(platform("org.junit:junit-bom:5.9.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("org.mockito:mockito-core:4.8.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
-    testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.4.9")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.kotlin.compile.testing)
+
 }
 
 kotlin {
@@ -56,8 +61,8 @@ kotlin {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "io.github.s0nicyouth"
-            artifactId = "processor"
+            groupId = groupId
+            artifactId = project.name
             version = version
 
             from(components["java"])

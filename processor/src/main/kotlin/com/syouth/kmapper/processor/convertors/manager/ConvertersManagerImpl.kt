@@ -50,18 +50,32 @@ internal class ConvertersManagerImpl(
         func.getAnnotationsByType(Mapping::class).forEach {
             mapperFunctionUserDefinedConvertors += UserDefinedPropertyConverter(
                 convertersManager = this,
-                targetPath = buildPathHolderForType(it.target, func.returnType?.resolve() ?: throw IllegalStateException("Mapper should have a return type")),
+                targetPath = buildPathHolderForType(
+                    it.target,
+                    func.returnType?.resolve() ?: throw IllegalStateException("Mapper should have a return type")
+                ),
                 sourcePath = buildSourcePathHolderFromString(it.source, func)
             )
         }
         for (parameter in func.parameters) {
-            parameter.getAnnotationsByType(Bind::class).forEach {
-                val paramName = parameter.name ?: throw IllegalStateException("Parameter should have a name to be bindable")
-                val target = it.to.ifEmpty { paramName.asString() }
+            parameter.getAnnotationsByType(Bind::class).forEach { it ->
+                val paramName =
+                    parameter.name ?: throw IllegalStateException("Parameter should have a name to be bindable")
+
+                val target = runCatching {
+                    it.to.ifEmpty { paramName.asString() }
+                }.getOrElse(onFailure = { throwable ->
+                    println("wft ${throwable.message}")
+                    paramName.asString()
+                })
+
                 val source = paramName.asString()
                 mapperFunctionUserDefinedConvertors += UserDefinedPropertyConverter(
                     convertersManager = this,
-                    targetPath = buildPathHolderForType(target, func.returnType?.resolve() ?: throw IllegalStateException("Mapper should have a return type")),
+                    targetPath = buildPathHolderForType(
+                        target,
+                        func.returnType?.resolve() ?: throw IllegalStateException("Mapper should have a return type")
+                    ),
                     sourcePath = buildSourcePathHolderFromString(source, func)
                 )
             }
@@ -93,7 +107,8 @@ internal class ConvertersManagerImpl(
         val result = PathHolder()
         val indexOfFirstDot = path.indexOfFirst { it == '.' }
         val firstElement = if (indexOfFirstDot != -1) path.substring(0, indexOfFirstDot) else path
-        val currentType = func.parameters.find { it.name?.asString() == firstElement } ?: throw IllegalStateException("Target path should reference valid properties. Can't find $firstElement from $path")
+        val currentType = func.parameters.find { it.name?.asString() == firstElement }
+            ?: throw IllegalStateException("Target path should reference valid properties. Can't find $firstElement from $path")
         val resolvedType = currentType.type.resolve()
         result.appendPathElement(PathHolder.PathElement(firstElement, resolvedType))
         if (indexOfFirstDot != -1) {

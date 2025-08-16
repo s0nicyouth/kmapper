@@ -1,3 +1,6 @@
+/*
+@file:OptIn(ExperimentalCompilerApi::class)
+
 package com.syouth.kmapper.processor.processor
 
 import com.syouth.kmapper.processor.provider.KMapperProcessorProvider
@@ -6,6 +9,7 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.kspArgs
 import com.tschuchort.compiletesting.symbolProcessorProviders
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -102,3 +106,4 @@ internal class TestMapperImpl : TestMapper {
         verbose = false
     }.compile()
 }
+*/

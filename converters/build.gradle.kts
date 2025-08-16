@@ -1,49 +1,64 @@
-val kspVersion: String by project
-val kMapperVersion: String by project
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
-    kotlin("jvm")
-    `java-library`
+    alias(libs.plugins.kotlinMultiplatform)
     `maven-publish`
     signing
 }
 
 group = "io.github.s0nicyouth"
-version = kMapperVersion
+version = libs.versions.kMapperVersion.get()
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "1.8"
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
+    }
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-    withSourcesJar()
-    withJavadocJar()
-}
-
-tasks.test {
-    useJUnitPlatform()
-    testLogging {
-        events("passed", "skipped", "failed")
-    }
-}
-
-dependencies {
-    implementation(kotlin("stdlib"))
-
-    testImplementation(platform("org.junit:junit-bom:5.9.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 kotlin {
-    sourceSets.main {
-        kotlin.srcDirs("src/main/kotlin")
+    jvm()
+
+    js(IR) {
+        nodejs()
+        browser()
+        binaries.executable()
     }
-    sourceSets.test {
-        kotlin.srcDir("src/test/kotlin")
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        binaries.executable()
+        nodejs()
     }
+
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+    macosX64()
+    macosArm64()
+    watchosArm32()
+    watchosArm64()
+    watchosSimulatorArm64()
+    watchosX64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    tvosX64()
+    mingwX64()
+    linuxX64()
+    linuxArm64()
+
 }
+
+dependencies {
+    commonMainApi(libs.bignum)
+}
+
 
 publishing {
     publications {
@@ -52,7 +67,7 @@ publishing {
             artifactId = "converters"
             version = version
 
-            from(components["java"])
+            artifact(tasks["sourcesJar"])
 
             pom {
                 name.set("kMapper converters")

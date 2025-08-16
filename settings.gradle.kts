@@ -1,19 +1,34 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
-    plugins {
-        id("com.google.devtools.ksp") version "1.8.20-1.0.11"
-        kotlin("jvm") version "1.8.20"
-    }
+
     repositories {
+        google {
+            mavenContent {
+                includeGroupAndSubgroups("androidx")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+            }
+        }
+        mavenCentral()
         gradlePluginPortal()
-        google()
     }
+
+    includeBuild("kmapper_plugin")
 }
 
 dependencyResolutionManagement {
     repositories {
-        google()
+        google {
+            mavenContent {
+                includeGroupAndSubgroups("androidx")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+            }
+        }
         mavenCentral()
-        mavenLocal()
+        maven(url = "https://maven.pkg.jetbrains.space/public/p/ktor/eap")
+        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
     }
 }
 
@@ -23,8 +38,8 @@ include(
     ":processor",
     ":processor_annotations",
     ":converters",
-    ":examples:testload",
     ":examples:koin",
     ":examples:anvil",
+    ":examples:sampleApplication:composeApp"
 )
 
