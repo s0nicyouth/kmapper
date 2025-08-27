@@ -62,12 +62,7 @@ dependencies {
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
-            groupId = "io.github.s0nicyouth"
-            artifactId = "converters"
-            version = version
-
-            artifact(tasks["sourcesJar"])
+        withType<MavenPublication> {
 
             pom {
                 name.set("kMapper converters")
@@ -92,12 +87,12 @@ publishing {
     }
     repositories {
         if (version.toString().endsWith("SNAPSHOT")) {
-            maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+            maven("https://central.sonatype.com/repository/maven-snapshots/") {
                 name = "sonatypeSnapshotRepository"
                 credentials(PasswordCredentials::class)
             }
         } else {
-            maven("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            maven("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/") {
                 name = "sonatypeReleaseRepository"
                 credentials(PasswordCredentials::class)
             }
@@ -106,5 +101,5 @@ publishing {
 }
 
 signing {
-    sign(publishing.publications["maven"])
+    sign(publishing.publications)
 }
