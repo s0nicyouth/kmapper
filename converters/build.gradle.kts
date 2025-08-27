@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    `maven-publish`
+    alias(libs.plugins.gradleMavenPublish)
     signing
 }
 
@@ -59,47 +59,27 @@ dependencies {
     commonMainApi(libs.bignum)
 }
 
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
 
-publishing {
-    publications {
-        withType<MavenPublication> {
-
-            pom {
-                name.set("kMapper converters")
-                description.set("Converters for kMapper library")
-                url.set("https://github.com/s0nicyouth/kmapper")
-                scm { url.set("https://github.com/s0nicyouth/kmapper/tree/master/converters") }
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("syouth")
-                        name.set("Anton Ivanov")
-                        email.set("mynameisantik@gmail.com")
-                    }
-                }
+    pom {
+        name.set("kMapper converters")
+        description.set("Converters for kMapper library")
+        url.set("https://github.com/s0nicyouth/kmapper")
+        scm { url.set("https://github.com/s0nicyouth/kmapper/tree/master/converters") }
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        developers {
+            developer {
+                id.set("syouth")
+                name.set("Anton Ivanov")
+                email.set("mynameisantik@gmail.com")
             }
         }
     }
-    repositories {
-        if (version.toString().endsWith("SNAPSHOT")) {
-            maven("https://central.sonatype.com/repository/maven-snapshots/") {
-                name = "sonatypeSnapshotRepository"
-                credentials(PasswordCredentials::class)
-            }
-        } else {
-            maven("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/") {
-                name = "sonatypeReleaseRepository"
-                credentials(PasswordCredentials::class)
-            }
-        }
-    }
-}
-
-signing {
-    sign(publishing.publications)
 }
