@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 plugins {
     kotlin("jvm")
     `java-library`
-    `maven-publish`
+    alias(libs.plugins.gradleMavenPublish)
     signing
 }
 
@@ -20,8 +20,6 @@ tasks.withType<KotlinJvmCompile>().configureEach {
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
-    withSourcesJar()
-    withJavadocJar()
 }
 
 tasks.test {
@@ -56,52 +54,28 @@ kotlin {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = groupId
-            artifactId = project.name
-            version = version
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
 
-            from(components["java"])
-
-            pom {
-                name.set("kMapper processor")
-                description.set("kMapper library")
-                url.set("https://github.com/s0nicyouth/kmapper")
-                scm { url.set("https://github.com/s0nicyouth/kmapper/tree/master/processor") }
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("syouth")
-                        name.set("Anton Ivanov")
-                        email.set("mynameisantik@gmail.com")
-                    }
-                }
+    pom {
+        name.set("kMapper processor")
+        description.set("kMapper library")
+        url.set("https://github.com/s0nicyouth/kmapper")
+        scm { url.set("https://github.com/s0nicyouth/kmapper/tree/master/processor") }
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        developers {
+            developer {
+                id.set("syouth")
+                name.set("Anton Ivanov")
+                email.set("mynameisantik@gmail.com")
             }
         }
     }
-    repositories {
-        if (version.toString().endsWith("SNAPSHOT")) {
-            maven("https://central.sonatype.com/repository/maven-snapshots/") {
-                name = "sonatypeSnapshotRepository"
-                credentials(PasswordCredentials::class)
-            }
-        } else {
-            maven("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/") {
-                name = "sonatypeReleaseRepository"
-                credentials(PasswordCredentials::class)
-            }
-        }
-    }
-}
-
-signing {
-    sign(publishing.publications["maven"])
 }
 
