@@ -1,3 +1,5 @@
+import java.net.URI
+
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
@@ -26,9 +28,16 @@ dependencyResolutionManagement {
                 includeGroupAndSubgroups("com.google")
             }
         }
+        maven {
+            name = "Central Portal Snapshots"
+            url = URI("https://central.sonatype.com/repository/maven-snapshots/")
+
+            content {
+                includeGroup("io.github.s0nicyouth")
+            }
+        }
         mavenCentral()
-        maven(url = "https://maven.pkg.jetbrains.space/public/p/ktor/eap")
-        maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
+        mavenLocal()
     }
 }
 

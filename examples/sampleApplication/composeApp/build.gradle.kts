@@ -1,14 +1,18 @@
+import com.google.devtools.ksp.gradle.KspAATask
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.kmapper)
+    //alias(libs.plugins.kmapper)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
@@ -74,11 +78,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.androidx.lifecycle.compose.viewmodel)
 
-            //implementation(libs.processor.annotations)
-            //implementation(libs.converters)
+            implementation(libs.processor.annotations)
+            implementation(libs.converters)
             // uncomment this if you want to work on processor and example project at once (no need to redeploy the project after every processor change)
-            implementation(projects.processorAnnotations)
-            implementation(projects.converters)
+            //implementation(projects.processorAnnotations)
+            //implementation(projects.converters)
         }
 
         desktopMain.dependencies {
@@ -87,6 +91,8 @@ kotlin {
         }
 
     }
+
+    configureCommonMainKsp()
 }
 
 android {
@@ -118,6 +124,9 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+    with(libs.processor) {
+        add("kspCommonMainMetadata", this)
+    }
 }
 
 compose.desktop {
@@ -130,6 +139,24 @@ compose.desktop {
             packageName = "org.example.project"
             packageVersion = "1.0.0"
         }
+    }
+}
+
+fun KotlinMultiplatformExtension.configureCommonMainKsp() {
+    sourceSets.named("commonMain").configure {
+        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+    }
+
+    project.tasks.withType(KotlinCompilationTask::class.java).configureEach {
+        if(name != "kspCommonMainKotlinMetadata") {
+            dependsOn("kspCommonMainKotlinMetadata")
+        }
+    }
+}
+
+tasks.withType<KspAATask>().configureEach {
+    if (name != "kspCommonMainKotlinMetadata") {
+        dependsOn("kspCommonMainKotlinMetadata")
     }
 }
 

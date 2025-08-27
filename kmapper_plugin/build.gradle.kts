@@ -29,12 +29,6 @@ allprojects {
     }
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
-    }
-}
-
 dependencies {
     add("compileOnly", kotlin("gradle-plugin"))
 }

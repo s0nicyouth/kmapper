@@ -37,9 +37,7 @@ dependencies {
     implementation(libs.kotlinpoet.ksp)
     implementation(libs.ksp.api)
 
-    //TODO: uncomment
-    //implementation("io.github.s0nicyouth:processor_annotations:$version")
-    implementation(projects.processorAnnotations)
+    implementation(libs.processor.annotations)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
@@ -90,12 +88,12 @@ publishing {
     }
     repositories {
         if (version.toString().endsWith("SNAPSHOT")) {
-            maven("https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+            maven("https://central.sonatype.com/repository/maven-snapshots/") {
                 name = "sonatypeSnapshotRepository"
                 credentials(PasswordCredentials::class)
             }
         } else {
-            maven("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            maven("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/") {
                 name = "sonatypeReleaseRepository"
                 credentials(PasswordCredentials::class)
             }
