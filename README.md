@@ -26,15 +26,15 @@ MapStruct often struggles to do so.
 
 ```kotlin
 plugins {
-    id("com.google.devtools.ksp") version "2.2.0-2.0.2"
+    id("com.google.devtools.ksp") version "2.2.10-2.0.2"
 
 }
 
 dependencies {
     // Core dependencies
-    implementation("io.github.s0nicyouth:processor_annotations:<version>")
-    implementation("io.github.s0nicyouth:converters:<version>")
-    ksp("io.github.s0nicyouth:processor:<version>")
+    implementation("io.github.s0nicyouth:processor_annotations:1.3.0")
+    implementation("io.github.s0nicyouth:converters:1.3.0")
+    ksp("io.github.s0nicyouth:processor:1.3.0")
 }
 ```
 
@@ -54,10 +54,10 @@ kotlin {
 }
 dependencies {
     // Core dependencies
-    implementation("io.github.s0nicyouth:processor_annotations:<version>")
-    implementation("io.github.s0nicyouth:converters:<version>")
+    implementation("io.github.s0nicyouth:processor_annotations:1.3.0")
+    implementation("io.github.s0nicyouth:converters:1.3.0")
 
-    with("io.github.s0nicyouth:processor:<version>") {
+    with("io.github.s0nicyouth:processor:1.3.0") {
         add("kspCommonMainMetadata", this)
         add("kspAndroid", this)
         add("kspIosX64", this)
